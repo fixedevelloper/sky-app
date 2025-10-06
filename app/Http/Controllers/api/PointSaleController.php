@@ -36,7 +36,7 @@ class PointSaleController extends Controller
                 'image_cni_recto' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
                 'image_doc_fiscal' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             ]);
-            logger($validated);
+           // logger($validated);
             DB::beginTransaction();
 
             // ✅ Vérifie si le vendeur existe
@@ -71,6 +71,7 @@ class PointSaleController extends Controller
             return response()->json($pointSale, 201);
 
         } catch (\Exception $exception) {
+            logger($exception->getMessage());
             DB::rollBack();
             return response()->json(['error' => $exception->getMessage()], 400);
         }
