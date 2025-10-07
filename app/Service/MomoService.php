@@ -79,7 +79,7 @@ class MomoService
                 'X-Target-Environment' => config('services.momo.env', 'sandbox'),
                 'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
                 'Content-Type' => 'application/json',
-                'X-Callback-Url'=>route('momo.callback')
+              //  'X-Callback-Url'=>route('momo.callback')
             ])->post($this->baseUrl . '/v1_0/requesttopay', [
                 'amount' => $amount,
                 'currency' => $currency,
@@ -91,7 +91,7 @@ class MomoService
                 'payerMessage' => 'Paiement commande',
                 'payeeNote' => 'Merci pour votre achat'
             ]);
-            logger('✅ Réponse MoMo reçue', $response->json());
+            logger('✅ Réponse MoMo reçue', [$response->status()]);
             return $response->status();
         }
 
