@@ -28,23 +28,48 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'             => 'required|string',
-            'phone'            => 'required|string|unique:customers,phone',
-            'point_sale_id'    => 'required|exists:point_sales,id',
-            'activity'         => 'nullable|string',
-            'localisation'     => 'nullable|string',
-            'commercial_code'  => 'nullable|string',
-            'code_key_account' => 'nullable|string',
+        logger($request->all());
 
-            // fichiers optionnels
-            'image_url'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'image_cni_recto'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'image_cni_verso'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+        // Corriger les valeurs "undefined" venant du front
+        foreach (['point_sale_id', 'activity', 'localisation', 'commercial_code', 'code_key_account'] as $field) {
+            if ($request->input($field) === 'undefined') {
+                $request->merge([$field => null]);
+            }
+        }
+
+        // Validation de base
+        $rules = [
+            'name'            => 'required|string',
+            'phone'           => 'required|string|unique:customers,phone',
+            'localisation'    => 'nullable|string',
+            'commercial_code' => 'nullable|string',
+            'is_customer'     => 'required|string',
+        ];
+
+        // Si ce n’est pas un client
+        if ($request->get('is_customer') === 'false') {
+            $rules = array_merge($rules, [
+                'activity'         => 'nullable|string',
+                'point_sale_id'    => 'nullable|exists:point_sales,id',
+                'code_key_account' => 'nullable|string',
+                'image_url'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'image_cni_recto'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'image_cni_verso'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+        }
+
+        try {
+            $validated = $request->validate($rules);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Erreur de validation',
+                'messages' => $e->errors()
+            ], 422);
+        }
 
         logger($validated);
-        // Sauvegarde des fichiers et récupération des chemins
+
+        // Upload fichiers
         foreach (['image_url', 'image_cni_recto', 'image_cni_verso'] as $field) {
             if ($request->hasFile($field)) {
                 $validated[$field] = $request->file($field)->store("customers/$field", 'public');
@@ -52,42 +77,45 @@ class CustomerController extends Controller
         }
 
         DB::beginTransaction();
+
         try {
-            // Création du client
-            $customer = Customer::create([
-                'name'             => $validated['name'],
-                'phone'            => $validated['phone'],
-                'activity'         => $validated['activity'] ?? null,
-                'localisation'     => $validated['localisation'] ?? null,
-                'commercial_code'  => $validated['commercial_code'] ?? null,
-                'code_key_account' => $validated['code_key_account'] ?? null,
-                'image_cni_recto'  => $validated['image_cni_recto'] ?? null,
-                'image_cni_verso'  => $validated['image_cni_verso'] ?? null,
-                'image_url'        => $validated['image_url'] ?? null,
-                'point_sale_id'    => $validated['point_sale_id'],
-            ]);
+            $data = [
+                'name'            => $validated['name'],
+                'phone'           => $validated['phone'],
+                'activity'        => $validated['activity'] ?? null,
+                'localisation'    => $validated['localisation'] ?? null,
+                'commercial_code' => $validated['commercial_code'] ?? null,
+            ];
 
-            // Création de l'achat
+            if ($request->get('is_customer') === 'false') {
+                $data['code_key_account'] = $validated['code_key_account'] ?? null;
+                $data['point_sale_id']    = $validated['point_sale_id'] ?? null;
+                foreach (['image_url', 'image_cni_recto', 'image_cni_verso'] as $field) {
+                    if (isset($validated[$field])) {
+                        $data[$field] = $validated[$field];
+                    }
+                }
+            }
+
+            $customer = Customer::create($data);
+
+            // Création du purchase
             $purchase = Purchase::create([
-                'product_name' => $request->nomTelephone,
-                'price'        => $request->prixCash ?? $request->prixLeasing,
-                'amount_by_day'     => 2000,
-                'payment_mode' => $request->prixCash ? 'CASH' : 'LEASING',
-                'image_url'    => $request->imageTelephone ?? null,
-                'customer_id'  => $customer->id,
+                'product_id'  => $request->product_id,
+                'pay_type'         => $request->is_cash==0 ?'cash' : 'leasing',
+                'payment_mode'  => $request->prixCash ? 'CASH' : 'LEASING',
+                'image_url'     => $request->imageTelephone ?? null,
+                'customer_id'   => $customer->id,
             ]);
 
-            // Générer un identifiant unique pour le paiement
             $referenceId = Str::uuid()->toString();
-
-            // Lancer la requête de paiement mobile
             $status = $this->momo->requestToPay($referenceId, $request->phone, $request->amount);
 
             if ($status) {
                 Paiement::create([
                     'phone'       => $request->phone,
                     'amount'      => $request->amount,
-                    'amount_rest' => $request->amount, // ou calculer si partiellement payé
+                    'amount_rest' => $request->amount,
                     'operator'    => $request->platform ?? 'MTN',
                     'status'      => 'PENDING',
                     'purchase_id' => $purchase->id,
@@ -100,14 +128,14 @@ class CustomerController extends Controller
                 'message'  => '✅ Client créé avec succès',
                 'customer' => $customer,
             ], 201);
+
         } catch (\Exception $e) {
-            logger($e->getMessage());
             DB::rollBack();
-            return response()->json([
-                'error' => 'Erreur serveur: '.$e->getMessage()
-            ], 500);
+            logger($e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
 
 
 

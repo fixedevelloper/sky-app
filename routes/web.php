@@ -29,5 +29,9 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         ->name('paiements');
     Route::match(["POST", "GET"], '/partners', [DashboardController::class, 'partners'])
         ->name('partners');
+    Route::match(["POST", "GET"], '/categories', [DashboardController::class, 'categories'])
+        ->name('categories');
+    Route::match(["POST", "GET"], '/products', [DashboardController::class, 'products'])
+        ->name('products');
 
 });

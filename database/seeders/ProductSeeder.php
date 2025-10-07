@@ -27,7 +27,7 @@ class ProductSeeder extends Seeder
         foreach ($default as $cat) {
             Category::create($cat);
         }
-        DB::table('products')->insert([
+        DB::table('categories')->insert([
             [
                 'category_id' => 1,
                 'name'        => 'Chicken Wings',
@@ -59,53 +59,6 @@ class ProductSeeder extends Seeder
                 'updated_at'  => now(),
             ],
         ]);
-        DB::table('accompaniments')->insert([
-            [
-                'name' => 'French Fries',
-                'price' => 0.00, // inclus dans le menu
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Green Salad',
-                'price' => 0.00, // inclus dans le menu
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Coleslaw',
-                'price' => 1.50, // supplément payant
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Garlic Bread',
-                'price' => 2.00,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Rice Pilaf',
-                'price' => 0.00,
-                'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
-        DB::table('accompaniment_product')->insert([
-            // Burger Menu (product_id = 1)
-            ['product_id' => 1, 'accompaniment_id' => 1, 'is_default' => true, 'created_at' => now(), 'updated_at' => now()], // Fries
-            ['product_id' => 1, 'accompaniment_id' => 2, 'is_default' => false, 'created_at' => now(), 'updated_at' => now()], // Salad
-            ['product_id' => 1, 'accompaniment_id' => 3, 'is_default' => false, 'created_at' => now(), 'updated_at' => now()], // Coleslaw
 
-            // Chicken Menu (product_id = 2)
-            ['product_id' => 2, 'accompaniment_id' => 1, 'is_default' => true, 'created_at' => now(), 'updated_at' => now()], // Fries
-            ['product_id' => 2, 'accompaniment_id' => 5, 'is_default' => false, 'created_at' => now(), 'updated_at' => now()], // Rice Pilaf
-            ['product_id' => 2, 'accompaniment_id' => 4, 'is_default' => false, 'created_at' => now(), 'updated_at' => now()], // Garlic Bread
-        ]);
     }
 }

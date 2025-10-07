@@ -41,6 +41,18 @@
                                 <span class="nk-menu-text">Achats</span>
                             </a>
                         </li>
+                        <li class="nk-menu-item">
+                            <a href="{{route('categories')}}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-book"></em></span>
+                                <span class="nk-menu-text">Categories</span>
+                            </a>
+                        </li>
+                        <li class="nk-menu-item">
+                            <a href="{{route('products')}}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-grid-box"></em></span>
+                                <span class="nk-menu-text">produits</span>
+                            </a>
+                        </li>
                     </ul><!-- .nk-menu -->
                 </div><!-- .nk-sidebar-menu -->
                 <div class="nk-sidebar-footer">

@@ -9,8 +9,27 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
+
     public function up(): void
     {
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+        Schema::create('products', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('memory')->nullable();
+            $table->integer('price')->default(0);
+            $table->integer('price_leasing')->default(0);
+            $table->string('image_url')->nullable();
+            $table->foreignId('category_id')->nullable()->constrained("categories",'id')->nullOnDelete();
+            $table->timestamps();
+            $table->softDeletes();
+        });
         Schema::create('point_sales', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
@@ -22,7 +41,13 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
+        Schema::create('partners', function (Blueprint $table) {
+            $table->id();
+            $table->json('categories')->nullable();
+            $table->foreignId('user_id')->nullable()->constrained("users", 'id')->nullOnDelete();
+            $table->timestamps();
+            $table->softDeletes();
+        });
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -41,11 +66,10 @@ return new class extends Migration
 
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->string('product_name');
-            $table->decimal('price', 10, 2)->default(0); // 💰 prix en décimal
-            $table->decimal('amount_by_day',10, 2)->default(0); // 🔄 remplacé amount_by_day par quantity
+            $table->enum('pay_type',['cash','leasing']);
             $table->string('payment_mode')->nullable();
             $table->string('image_url')->nullable();
+            $table->foreignId('product_id')->nullable()->constrained("products", 'id')->nullOnDelete();
             $table->foreignId('customer_id')->nullable()->constrained("customers", 'id')->nullOnDelete();
             $table->timestamps();
             $table->softDeletes();
@@ -71,6 +95,7 @@ return new class extends Migration
     public function down(): void
     {
         // 🔄 ordre inverse de création pour éviter les erreurs de contrainte
+        Schema::dropIfExists('products');
         Schema::dropIfExists('paiements');
         Schema::dropIfExists('purchases');
         Schema::dropIfExists('customers');

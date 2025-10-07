@@ -29,23 +29,24 @@ class DatabaseSeeder extends Seeder
             'localisation'=>'Douala bonamousadi',
             'vendor_id'=>$user->id
         ]);
-/*        $this->call(ProductSeeder::class);
-        DB::table('tables')->insert([
+
+        DB::table('categories')->insert([
             [
-                'number'        => '4',
-                'capacity'       => 6,
-                'status'        => 'free',
-                'created_at'  => now(),
-                'updated_at'  => now(),
+                'name'        => 'Philips',
             ],
             [
-                'number'        => '5',
-                'capacity'       => 4,
-                'status'        => 'occupied',
-                'created_at'  => now(),
-                'updated_at'  => now(),
+                'name'        => 'Omni',
+
             ],
-            ]);*/
+            [
+                'name'        => 'Samsung',
+
+            ],
+            [
+                'name'        => 'Hp',
+
+            ],
+            ]);
 
     }
 }

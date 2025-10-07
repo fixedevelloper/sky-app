@@ -31,13 +31,11 @@
                                     </div>
                                 </th>
                                 <th class="nk-tb-col"><span class="sub-text">Client</span></th>
-                                <th class="nk-tb-col tb-col-xxl"><span class="sub-text">Point vente</span></th>
                                 <th class="nk-tb-col tb-col-lg"><span class="sub-text">Product</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Activite</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Telephone</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Addresse</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">CNI Recto</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">CNI Verso</span></th>
+                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Prix</span></th>
+                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">N Tel</span></th>
+                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Localisation</span></th>
+                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Point de vente</span></th>
                                 <th class="nk-tb-col nk-tb-col-tools text-end">
 
                                 </th>
@@ -56,29 +54,31 @@
                                         <a href="#" class="project-title">
                                             <div class="user-avatar sm bg-blue"><img src="{{asset($item->image_url)}}" alt=""></div>
                                             <div class="project-info">
-                                                <h6 class="title">{{$item->name}}</h6>
+                                                <h6 class="title">{{$item->customer->name}}</h6>
                                             </div>
                                         </a>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->phone}}</span>
+                                        <span>{{$item->product->name}}</span>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->activity}}</span>
+                                        <span>{{$item->product->price}}</span>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->product_name}}</span>
+                                        <span>{{$item->customer->phone}}</span>
                                     </td>
 
                                     <td class="nk-tb-col tb-col-xxl">
                                         <span>{{$item->localisation}}</span>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <img class="img-thumbnail" width="80" height="80" src="{{asset($item->image_cni_recto)}}" alt="">
+                                        @if($item->customer->pointSale)
+                                        <span>{{$item->customer->pointSale->name}}</span>
+                                        @else
+                                            <span>-</span>
+                                        @endif
                                     </td>
-                                    <td class="nk-tb-col tb-col-xxl">
-                                        <img class="img-thumbnail" width="80" height="80" src="{{asset($item->image_cni_verso)}}" alt="">
-                                    </td>
+
                                     <td class="nk-tb-col nk-tb-col-tools">
                                         <ul class="nk-tb-actions gx-1">
                                             <li>
@@ -86,7 +86,7 @@
                                                     <a href="#" class="dropdown-toggle btn btn-sm btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
                                                         <ul class="link-list-opt no-bdr">
-                                                            <li><a href="{{route('point_sale',['id'=>$item->id])}}"><em class="icon ni ni-eye"></em><span>Paiements</span></a></li>
+                                                            <li><a href="{{route('paiements',['id'=>$item->id])}}"><em class="icon ni ni-eye"></em><span>Paiements</span></a></li>
                                                             <li><a href="#"><em class="icon ni ni-edit"></em><span>Details</span></a></li>
                                                         </ul>
                                                     </div>

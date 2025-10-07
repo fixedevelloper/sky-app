@@ -22,28 +22,23 @@ class MomoService
     // 🔹 Obtenir un token d'accès
     public function getToken()
     {
-        logger($this->apiUser);
+
         $response = Http::withHeaders([
             'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
             'Authorization' => 'Basic ' . base64_encode($this->apiUser . ':' . $this->apiKey),
         ])->post($this->baseUrl . '/token/');
 
-        logger($response->json());
-        return $response->json()['access_token'] ?? null;
+        return $response['access_token'] ?? null;
     }
 
     // 🔹 Initier un paiement
-    public function requestToPay($referenceId, $phone, $amount, $currency = 'XAF')
+    /* public function requestToPay($referenceId, $phone, $amount, $currency = 'XAF')
     {
         $token = $this->getToken();
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-            'X-Reference-Id' => $referenceId,
-            'X-Target-Environment' => config('services.momo.env', 'sandbox'),
-            'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
-            'Content-Type' => 'application/json'
-        ])->post($this->baseUrl . '/requesttopay', [
+        $url = $this->baseUrl . '/collection/accounts/' .'12f411d8a5af4e549bb763543cbae983' . '/transactions';
+
+        $data = [
             'amount' => $amount,
             'currency' => $currency,
             'externalId' => $referenceId,
@@ -53,10 +48,50 @@ class MomoService
             ],
             'payerMessage' => 'Paiement commande',
             'payeeNote' => 'Merci pour votre achat'
-        ]);
+        ];
 
-        return $response->status();
+        logger('Request To Pay payload', $data);
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'X-Reference-Id' => $referenceId,
+            'X-Target-Environment' => config('services.momo.env', 'sandbox'),
+            'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
+            'Content-Type' => 'application/json'
+        ])->post($url, $data);
+
+        logger('Request To Pay response', ['status' => $response->status(), 'body' => $response->body()]);
+
+        return [
+            'status' => $response->status(),
+            'body' => $response->json()
+        ];
     }
+*/
+       public function requestToPay($referenceId, $phone, $amount, $currency = 'EUR')
+        {
+            $token = $this->getToken();
+            logger($token);
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+                'X-Reference-Id' => $referenceId,
+                'X-Target-Environment' => config('services.momo.env', 'sandbox'),
+                'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
+                'Content-Type' => 'application/json'
+            ])->post($this->baseUrl . '/v1_0/requesttopay', [
+                'amount' => $amount,
+                'currency' => $currency,
+                'externalId' => $referenceId,
+                'payer' => [
+                    'partyIdType' => 'MSISDN',
+                    'partyId' => $phone
+                ],
+                'payerMessage' => 'Paiement commande',
+                'payeeNote' => 'Merci pour votre achat'
+            ]);
+            logger('**************************'.$response->json());
+            return $response->status();
+        }
 
     // 🔹 Vérifier le statut d’un paiement
     public function getPaymentStatus($referenceId)
