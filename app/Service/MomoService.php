@@ -91,7 +91,7 @@ class MomoService
                 'payerMessage' => 'Paiement commande',
                 'payeeNote' => 'Merci pour votre achat'
             ]);
-            logger('**************************'.json_encode($response));
+            logger('**************************'.$response->json());
             return $response->status();
         }
 
