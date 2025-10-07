@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Http;
 
 class MomoService
@@ -71,25 +72,26 @@ class MomoService
        public function requestToPay($referenceId, $phone, $amount, $currency = 'EUR')
         {
             $token = $this->getToken();
-            logger($token);
+            logger(route('momo.callback'));
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $token,
                 'X-Reference-Id' => $referenceId,
                 'X-Target-Environment' => config('services.momo.env', 'sandbox'),
                 'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
-                'Content-Type' => 'application/json'
+                'Content-Type' => 'application/json',
+                'X-Callback-Url'=>route('momo.callback')
             ])->post($this->baseUrl . '/v1_0/requesttopay', [
                 'amount' => $amount,
                 'currency' => $currency,
                 'externalId' => $referenceId,
                 'payer' => [
                     'partyIdType' => 'MSISDN',
-                    'partyId' => $phone
+                    'partyId' => '+237'.$phone
                 ],
                 'payerMessage' => 'Paiement commande',
                 'payeeNote' => 'Merci pour votre achat'
             ]);
-            logger('**************************'.$response->json());
+            logger('**************************'.json_encode($response));
             return $response->status();
         }
 
@@ -102,7 +104,7 @@ class MomoService
             'Authorization' => 'Bearer ' . $token,
             'X-Target-Environment' => config('services.momo.env', 'sandbox'),
             'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
-        ])->get($this->baseUrl . '/requesttopay/' . $referenceId);
+        ])->get($this->baseUrl . '/v1_0/requesttopay/' . $referenceId);
 
         return $response->json();
     }

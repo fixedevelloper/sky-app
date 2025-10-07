@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Paiement;
 use App\Service\MomoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -35,10 +36,27 @@ class MomoController extends Controller
         ]);
     }
 
-    // Vérifier un paiement
     public function checkStatus($referenceId)
     {
-        $status = $this->momo->getPaymentStatus($referenceId);
-        return response()->json($status);
+        // Rechercher le paiement correspondant
+        $paiement = Paiement::where('reference_id', $referenceId)->first();
+
+        // Si non trouvé
+        if (!$paiement) {
+            return response()->json([
+                'referenceId' => $referenceId,
+                'status' => 'not_found',
+                'message' => 'Aucun paiement trouvé pour cette référence.'
+            ], 404);
+        }
+
+        // Si trouvé
+        return response()->json([
+            'referenceId' => $paiement->reference_id,
+            'status' => $paiement->status,
+            'amount' => $paiement->amount,
+            'confirmed_at' => $paiement->confirmed_at,
+        ]);
     }
+
 }
