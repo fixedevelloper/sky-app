@@ -41,6 +41,9 @@
                                 <span class="nk-menu-text">Achats</span>
                             </a>
                         </li>
+                        <li class="nk-menu-heading">
+                            <h6 class="overline-title text-primary-alt">Parametrage</h6>
+                        </li>
                         <li class="nk-menu-item">
                             <a href="{{route('categories')}}" class="nk-menu-link">
                                 <span class="nk-menu-icon"><em class="icon ni ni-book"></em></span>

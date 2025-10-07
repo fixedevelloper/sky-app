@@ -28,7 +28,6 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        logger($request->all());
 
         // Corriger les valeurs "undefined" venant du front
         foreach (['point_sale_id', 'activity', 'localisation', 'commercial_code', 'code_key_account'] as $field) {
@@ -67,7 +66,6 @@ class CustomerController extends Controller
             ], 422);
         }
 
-        logger($validated);
 
         // Upload fichiers
         foreach (['image_url', 'image_cni_recto', 'image_cni_verso'] as $field) {

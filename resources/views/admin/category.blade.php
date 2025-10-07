@@ -3,7 +3,7 @@
 
 @endsection
 
-@section('title', 'Partenaires')
+@section('title', 'Categories de produits')
 
 @section('content')
     <div class="nk-content-wrap">
