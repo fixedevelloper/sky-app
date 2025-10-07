@@ -6,7 +6,7 @@ use App\Http\Controllers\SecurityController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::post('/momo/callback', [MomoCallbackController::class, 'handleCallback'])->name('momo.callback');
+Route::post('/momo/callback', [MomoCallbackController::class, 'callback'])->name('momo.callback');
 Route::get('lang/{locale}', function ($locale) {
     if (in_array($locale, ['en', 'fr'])) {
         session(['locale' => $locale]);
@@ -36,5 +36,10 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         ->name('categories');
     Route::match(["POST", "GET"], '/products', [DashboardController::class, 'products'])
         ->name('products');
+    Route::get('/momo-callbacks', function () {
+        return view('admin.momo_callbacks', [
+            'callbacks' => \App\Models\MomoCallback::latest()->paginate(50),
+        ]);
+    });
 
 });
