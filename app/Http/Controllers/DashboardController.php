@@ -32,7 +32,8 @@ class DashboardController extends Controller
     {
         $partners=User::query()->where('user_type','partner')->paginate(20);
         return view('admin.partners',[
-            'items'=>$partners
+            'items'=>$partners,
+            'categories'=>Category::all()
         ]);
     }
     public function purchase()

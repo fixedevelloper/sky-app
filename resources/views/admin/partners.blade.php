@@ -143,11 +143,9 @@
                     <div class="form-control-wrap">
                         <div class="form-control-select-multiple">
                             <select name="categories[]" class="form-select" id="default-07" multiple="" aria-label="multiple select example">
-                                <option value="option_select0">Default Option</option>
-                                <option value="option_select1">Option select name</option>
-                                <option value="option_select2">Option select name</option>
-                                <option value="option_select2">Option select name</option>
-                                <option value="option_select2">Option select name</option>
+                                @foreach($categories as $category)
+                                <option value="{{$category->id}}">{{$category->name}}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
