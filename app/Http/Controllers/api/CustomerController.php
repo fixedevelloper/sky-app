@@ -117,6 +117,7 @@ class CustomerController extends Controller
                     'operator'    => $request->platform ?? 'MTN',
                     'status'      => 'PENDING',
                     'purchase_id' => $purchase->id,
+                    'reference_id'=>$referenceId
                 ]);
             }
 
@@ -125,6 +126,7 @@ class CustomerController extends Controller
             return response()->json([
                 'message'  => '✅ Client créé avec succès',
                 'customer' => $customer,
+                'referenceId'=>$referenceId
             ], 201);
 
         } catch (\Exception $e) {
@@ -135,6 +137,55 @@ class CustomerController extends Controller
     }
 
 
+    public function getCurrentCustomer(Request $request)
+    {
+        $validated = $request->validate([
+            'name'             => 'sometimes|string',
+            'phone'            => 'sometimes|string|exists:customers,phone',
+            'commercial_code'  => 'required|string',
+        ]);
+
+        // 🔹 Récupération du client
+        $customer = Customer::query()
+            ->where('commercial_code', $validated['commercial_code'])
+            ->when(isset($validated['phone']), fn($q) => $q->where('phone', $validated['phone']))
+            ->when(isset($validated['name']), fn($q) => $q->where('name', $validated['name']))
+            ->firstOrFail();
+
+        // 🔹 Dernier achat du client
+        $purchase = Purchase::query()
+            ->where('customer_id', $customer->id)
+            ->latest()
+            ->firstOrFail();
+
+        // 🔹 Chargement du produit et paiements
+        $product   = $purchase->product;
+        $paiements = $purchase->paiements()->get();
+
+        // 🔹 Calcul du total payé
+        $total = 0.0;
+        foreach ($paiements as $item) {
+            if ($item->status === 'confirmed') {
+                $total += $item->amount;
+            }
+        }
+
+        // 🔹 Construction des données
+        $data = [
+            'customer_name'           => $customer->name,
+            'customer_phone'          => $customer->phone,
+            'point_sale'              => optional($customer->pointSale)->name,
+            'product_name'            => $product->name ?? null,
+            'product_price'           => $product->price ?? null,
+            'product_price_leasing'   => $product->price_leasing ?? null,
+            'purchase_id'             => $purchase->id,
+            'total_pay'               => $total,
+            'rest_pay'                => ($product->price ?? 0) - $total,
+            'paiements'               => $paiements,
+        ];
+
+        return response()->json($data);
+    }
 
 
     public function show(Customer $customer)

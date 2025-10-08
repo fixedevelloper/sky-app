@@ -16,7 +16,9 @@ class Paiement extends Model
         'amount_rest',
         'operator',
         'status',
-        'purchase_id'
+        'purchase_id',
+        'reference_id',
+        'confirmed_at'
     ];
 
     // 🔗 Relations

@@ -16,6 +16,7 @@ Route::apiResource('users', UserController::class);
 Route::apiResource('products', ProductController::class);
 Route::apiResource('point-sales', PointSaleController::class);
 Route::apiResource('customers', CustomerController::class);
+Route::post('/customers/current', [CustomerController::class, 'getCurrentCustomer']);
 Route::apiResource('purchases', PurchaseController::class);
 Route::apiResource('paiements', PaiementController::class);
 Route::post('/momo/pay', [MomoController::class, 'pay']);
