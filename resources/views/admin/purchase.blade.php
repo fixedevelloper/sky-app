@@ -46,48 +46,49 @@
                                 <tr class="nk-tb-item">
                                     <td class="nk-tb-col nk-tb-col-check">
                                         <div class="custom-control custom-control-sm custom-checkbox notext">
-                                            <input type="checkbox" class="custom-control-input" id="pid-01">
-                                            <label class="custom-control-label" for="pid-01"></label>
+                                            <input type="checkbox" class="custom-control-input" id="pid-{{ $item->id }}">
+                                            <label class="custom-control-label" for="pid-{{ $item->id }}"></label>
                                         </div>
                                     </td>
                                     <td class="nk-tb-col">
                                         <a href="#" class="project-title">
-                                            <div class="user-avatar sm bg-blue"><img src="{{asset($item->image_url)}}" alt=""></div>
+                                            <div class="user-avatar sm bg-blue">
+                                                <img src="{{ asset($item->image_url ?? 'assets/images/nophone.jpg') }}" alt="">
+                                            </div>
                                             <div class="project-info">
-                                                <h6 class="title">{{$item->customer->name}}</h6>
+                                                <h6 class="title">{{ $item->customer->name }}</h6>
                                             </div>
                                         </a>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->product->name}}</span>
+                                        <span>{{ optional($item->product)->name ?? optional($item->customProduct)->name ?? '-' }}</span>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->product->price}}</span>
+                                        <span>{{ optional($item->product)->price ?? optional($item->customProduct)->amount ?? '-' }}</span>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->customer->phone}}</span>
-                                    </td>
-
-                                    <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->localisation}}</span>
+                                        <span>{{ $item->customer->phone }}</span>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        @if($item->customer->pointSale)
-                                        <span>{{$item->customer->pointSale->name}}</span>
-                                        @else
-                                            <span>-</span>
-                                        @endif
+                                        <span>{{ $item->localisation ?? '-' }}</span>
                                     </td>
-
+                                    <td class="nk-tb-col tb-col-xxl">
+                                        <span>{{ optional($item->customer->pointSale)->name ?? '-' }}</span>
+                                    </td>
                                     <td class="nk-tb-col nk-tb-col-tools">
                                         <ul class="nk-tb-actions gx-1">
                                             <li>
                                                 <div class="drodown">
-                                                    <a href="#" class="dropdown-toggle btn btn-sm btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+                                                    <a href="#" class="dropdown-toggle btn btn-sm btn-icon btn-trigger" data-bs-toggle="dropdown">
+                                                        <em class="icon ni ni-more-h"></em>
+                                                    </a>
                                                     <div class="dropdown-menu dropdown-menu-end">
                                                         <ul class="link-list-opt no-bdr">
-                                                            <li><a href="{{route('paiements',['id'=>$item->id])}}"><em class="icon ni ni-eye"></em><span>Paiements</span></a></li>
+                                                            <li><a href="{{ route('paiements',['id'=>$item->id]) }}"><em class="icon ni ni-eye"></em><span>Paiements</span></a></li>
                                                             <li><a href="#"><em class="icon ni ni-edit"></em><span>Details</span></a></li>
+                                                        {{--    @if($item->customProduct)
+                                                                <li><a href="{{ route('custom.products.show', $item->customProduct->id) }}"><em class="icon ni ni-eye"></em><span>Custom Product</span></a></li>
+                                                            @endif--}}
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -96,6 +97,7 @@
                                     </td>
                                 </tr>
                             @endforeach
+
                             </tbody>
                         </table>
                     </div>

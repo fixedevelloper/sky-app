@@ -6,6 +6,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\CustomProduct;
 use App\Models\Paiement;
 use App\Models\Purchase;
 use App\Service\MomoService;
@@ -21,6 +22,7 @@ class CustomerController extends Controller
     {
         $this->momo = $momo;
     }
+
     public function index()
     {
         return response()->json(Customer::with('pointSale')->get());
@@ -38,28 +40,29 @@ class CustomerController extends Controller
 
         // Validation de base
         $rules = [
-            'name'            => 'required|string',
-            'phone'           => 'required|string|unique:customers,phone',
-            'localisation'    => 'nullable|string',
+            'name' => 'required|string',
+            'phone' => 'required|string|unique:customers,phone',
+            'localisation' => 'nullable|string',
             'commercial_code' => 'nullable|string',
-            'is_customer'     => 'required|string',
+            'is_customer' => 'required|string',
         ];
 
         // Si ce n’est pas un client
         if ($request->get('is_customer') === 'false') {
             $rules = array_merge($rules, [
-                'activity'         => 'nullable|string',
-                'point_sale_id'    => 'nullable|exists:point_sales,id',
+                'activity' => 'nullable|string',
+                'point_sale_id' => 'nullable|exists:point_sales,id',
                 'code_key_account' => 'nullable|string',
-                'image_url'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                'image_cni_recto'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                'image_cni_verso'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'image_url' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'image_cni_recto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'image_cni_verso' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             ]);
         }
 
         try {
             $validated = $request->validate($rules);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            logger($e->getMessage());
             return response()->json([
                 'error' => 'Erreur de validation',
                 'messages' => $e->errors()
@@ -75,58 +78,69 @@ class CustomerController extends Controller
         }
 
         DB::beginTransaction();
-
         try {
-            $data = [
-                'name'            => $validated['name'],
-                'phone'           => $validated['phone'],
-                'activity'        => $validated['activity'] ?? null,
-                'localisation'    => $validated['localisation'] ?? null,
-                'commercial_code' => $validated['commercial_code'] ?? null,
-            ];
-
+            $isCustom = filter_var($request->input('is_custom'), FILTER_VALIDATE_BOOLEAN);
+            $data = ['name' => $validated['name'], 'phone' => $validated['phone'], 'activity' => $validated['activity'] ?? null, 'localisation' => $validated['localisation'] ?? null, 'commercial_code' => $validated['commercial_code'] ?? null,];
             if ($request->get('is_customer') === 'false') {
                 $data['code_key_account'] = $validated['code_key_account'] ?? null;
-                $data['point_sale_id']    = $validated['point_sale_id'] ?? null;
+                $data['point_sale_id'] = $validated['point_sale_id'] ?? null;
                 foreach (['image_url', 'image_cni_recto', 'image_cni_verso'] as $field) {
                     if (isset($validated[$field])) {
                         $data[$field] = $validated[$field];
                     }
                 }
             }
-
             $customer = Customer::create($data);
 
-            // Création du purchase
-            $purchase = Purchase::create([
-                'product_id'  => $request->product_id,
-                'pay_type'         => $request->is_cash==0 ?'cash' : 'leasing',
-                'payment_mode'  => $request->prixCash ? 'CASH' : 'LEASING',
-                'image_url'     => $request->imageTelephone ?? null,
-                'customer_id'   => $customer->id,
-            ]);
+            $payType = $request->is_cash == 0 ? 'cash' : 'leasing';
+            $paymentMode = $request->is_cash == 0 ? 'CASH' : 'LEASING';
+
+            if ($isCustom) {
+                $purchase = Purchase::create([
+                    'pay_type' => $payType,
+                    'payment_mode' => $paymentMode,
+                    'image_url' => $request->imageTelephone ?? null,
+                    'customer_id' => $customer->id,
+                ]);
+
+                $customProduct = $purchase->customProduct()->create([
+                    'name' => $request->nomTelephone,
+                    'amount' => $request->amount,
+                ]);
+
+                $amount = $request->amount;
+            } else {
+                $purchase = Purchase::create([
+                    'product_id' => $request->product_id,
+                    'pay_type' => $payType,
+                    'payment_mode' => $paymentMode,
+                    'image_url' => $request->imageTelephone ?? null,
+                    'customer_id' => $customer->id,
+                ]);
+
+                $amount = $purchase->product->price ?? 0;
+            }
 
             $referenceId = Str::uuid()->toString();
-            $status = $this->momo->requestToPay($referenceId, $request->phone, $request->amount);
+            $status = $this->momo->requestToPay($referenceId, $request->phone, $amount);
 
             if ($status) {
-                Paiement::create([
-                    'phone'       => $request->phone,
-                    'amount'      => $request->amount,
-                    'amount_rest' => $request->amount,
-                    'operator'    => $request->platform ?? 'MTN',
-                    'status'      => 'PENDING',
-                    'purchase_id' => $purchase->id,
-                    'reference_id'=>$referenceId
+                $purchase->paiements()->create([
+                    'phone' => $request->phone,
+                    'amount' => $amount,
+                    'amount_rest' => $amount,
+                    'operator' => $request->platform ?? 'MTN',
+                    'status' => 'PENDING',
+                    'reference_id' => $referenceId,
                 ]);
             }
 
             DB::commit();
 
             return response()->json([
-                'message'  => '✅ Client créé avec succès',
+                'message' => '✅ Client créé avec succès',
                 'customer' => $customer,
-                'referenceId'=>$referenceId
+                'referenceId' => $referenceId
             ], 201);
 
         } catch (\Exception $e) {
@@ -134,15 +148,16 @@ class CustomerController extends Controller
             logger($e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
+
     }
 
 
     public function getCurrentCustomer(Request $request)
     {
         $validated = $request->validate([
-            'name'             => 'sometimes|string',
-            'phone'            => 'sometimes|string|exists:customers,phone',
-            'commercial_code'  => 'required|string',
+            'name' => 'sometimes|string',
+            'phone' => 'sometimes|string|exists:customers,phone',
+            'commercial_code' => 'required|string',
         ]);
 
         // 🔹 Récupération du client
@@ -159,7 +174,7 @@ class CustomerController extends Controller
             ->firstOrFail();
 
         // 🔹 Chargement du produit et paiements
-        $product   = $purchase->product;
+        $product = $purchase->product;
         $paiements = $purchase->paiements()->get();
 
         // 🔹 Calcul du total payé
@@ -172,16 +187,16 @@ class CustomerController extends Controller
 
         // 🔹 Construction des données
         $data = [
-            'customer_name'           => $customer->name,
-            'customer_phone'          => $customer->phone,
-            'point_sale'              => optional($customer->pointSale)->name,
-            'product_name'            => $product->name ?? null,
-            'product_price'           => $product->price ?? null,
-            'product_price_leasing'   => $product->price_leasing ?? null,
-            'purchase_id'             => $purchase->id,
-            'total_pay'               => $total,
-            'rest_pay'                => ($product->price ?? 0) - $total,
-            'paiements'               => $paiements,
+            'customer_name' => $customer->name,
+            'customer_phone' => $customer->phone,
+            'point_sale' => optional($customer->pointSale)->name,
+            'product_name' => $product->name ?? null,
+            'product_price' => $product->price ?? null,
+            'product_price_leasing' => $product->price_leasing ?? null,
+            'purchase_id' => $purchase->id,
+            'total_pay' => $total,
+            'rest_pay' => ($product->price ?? 0) - $total,
+            'paiements' => $paiements,
         ];
 
         return response()->json($data);

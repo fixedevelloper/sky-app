@@ -15,7 +15,8 @@ class Purchase extends Model
         'pay_type',
         'payment_mode',
         'image_url',
-        'customer_id'
+        'customer_id',
+        'is_custom_product'
     ];
 
     // 🔗 Relations
@@ -32,4 +33,9 @@ class Purchase extends Model
     {
         return $this->hasMany(Paiement::class);
     }
+    public function customProduct()
+    {
+        return $this->hasOne(CustomProduct::class);
+    }
+
 }

@@ -31,10 +31,10 @@
                                     </div>
                                 </th>
                                 <th class="nk-tb-col"><span class="sub-text">Montant</span></th>
-                                <th class="nk-tb-col tb-col-xxl"><span class="sub-text">Telephone</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Product</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Method</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Status</span></th>
+                                <th class="nk-tb-col"><span class="sub-text">Telephone</span></th>
+                                <th class="nk-tb-col"><span class="sub-text">Product</span></th>
+                                <th class="nk-tb-col"><span class="sub-text">Method</span></th>
+                                <th class="nk-tb-col"><span class="sub-text">Status</span></th>
                                 <th class="nk-tb-col nk-tb-col-tools text-end">
 
                                 </th>
@@ -56,17 +56,17 @@
                                             </div>
                                         </a>
                                     </td>
-                                    <td class="nk-tb-col tb-col-xxl">
+                                    <td class="nk-tb-col">
                                         <span>{{$item->phone}}</span>
                                     </td>
-                                    <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->purchase->product->name}}</span>
+                                    <td class="nk-tb-col">
+                                        <span>{{ optional($item->purchase->product)->name ?? optional($item->purchase->customProduct)->name ?? '-' }}</span>
                                     </td>
 
-                                    <td class="nk-tb-col tb-col-xxl">
+                                    <td class="nk-tb-col">
                                         <span>{{$item->operator}}</span>
                                     </td>
-                                    <td class="nk-tb-col tb-col-xxl">
+                                    <td class="nk-tb-col">
                                         <span>{{$item->status}}</span>
                                     </td>
 
