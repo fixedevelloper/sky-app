@@ -33,7 +33,7 @@ class MomoService
     }
 
 
-       public function requestToPay($referenceId, $phone, $amount, $currency = 'EUR')
+       public function requestToPay($referenceId, $phone, $amount, $currency = 'XAF')
         {
             $token = $this->getToken();
             logger($token);
