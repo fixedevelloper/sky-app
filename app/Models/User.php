@@ -45,7 +45,10 @@ class User extends Authenticatable
     ];
 
     // 🔗 Relations
-
+    public function partner()
+    {
+        return $this->belongsTo(Partner::class);
+    }
     /**
      * Un utilisateur "vendor" possède plusieurs points de vente
      */

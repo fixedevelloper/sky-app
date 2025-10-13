@@ -21,10 +21,10 @@
                         <div class="toggle-expand-content" data-content="pageMenu">
                             <ul class="nk-block-tools g-3">
                                 <li class="nk-block-tools-opt d-none d-sm-block">
-                                    <a href="#" data-target="addProduct" class="toggle btn btn-primary"><em class="icon ni ni-plus"></em><span>Ajouter</span></a>
+                                    <a href="#" data-target="addPartner" class="toggle btn btn-primary"><em class="icon ni ni-plus"></em><span>Ajouter</span></a>
                                 </li>
                                 <li class="nk-block-tools-opt d-block d-sm-none">
-                                    <a href="#" data-target="addProduct" class="toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
+                                    <a href="#" data-target="addPartner" class="toggle btn btn-icon btn-primary"><em class="icon ni ni-plus"></em></a>
                                 </li>
                             </ul>
                         </div>
@@ -74,17 +74,11 @@
                                         <span>{{$item->phone}}</span>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->activity}}</span>
+                                        <span>{{$item->email}}</span>
                                     </td>
 
                                     <td class="nk-tb-col tb-col-xxl">
-                                        <span>{{$item->localisation}}</span>
-                                    </td>
-                                    <td class="nk-tb-col tb-col-xxl">
-                                        <img class="img-thumbnail" width="80" height="80" src="{{asset($item->image_cni_recto)}}" alt="">
-                                    </td>
-                                    <td class="nk-tb-col tb-col-xxl">
-                                        <img class="img-thumbnail" width="80" height="80" src="{{asset($item->image_cni_verso)}}" alt="">
+                                        <span>{{$item->categories}}</span>
                                     </td>
                                     <td class="nk-tb-col nk-tb-col-tools">
                                         <ul class="nk-tb-actions gx-1">
@@ -93,8 +87,7 @@
                                                     <a href="#" class="dropdown-toggle btn btn-sm btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
                                                     <div class="dropdown-menu dropdown-menu-end">
                                                         <ul class="link-list-opt no-bdr">
-                                                            <li><a href="{{route('point_sale',['id'=>$item->id])}}"><em class="icon ni ni-eye"></em><span>Points de vente</span></a></li>
-                                                            <li><a href="#"><em class="icon ni ni-edit"></em><span>Edit</span></a></li>
+                                                         <li><a href="#"><em class="icon ni ni-edit"></em><span>Edit</span></a></li>
                                                             <li><a href="#"><em class="icon ni ni-check-round-cut"></em><span>Supprimer</span></a></li>
                                                         </ul>
                                                     </div>
@@ -157,4 +150,76 @@
             </div>
         </div><!-- .nk-block -->
     </div>
+    <div class="nk-add-product toggle-slide toggle-slide-right" data-content="addPartner"
+         data-toggle-screen="any" data-toggle-overlay="true" data-toggle-body="true" data-simplebar>
+        <div class="nk-block-head">
+            <div class="nk-block-head-content">
+                <h5 class="nk-block-title">Ajouter un partenaire</h5>
+                <div class="nk-block-des">
+                    <p>Ajouter les informations du partenaire</p>
+                </div>
+            </div>
+        </div><!-- .nk-block-head -->
+        <div class="nk-block">
+            <form method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label" for="product-title">Nom</label>
+                            <div class="form-control-wrap">
+                                <input type="text" name="name" class="form-control" id="product-title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label" for="product-title">Email</label>
+                            <div class="form-control-wrap">
+                                <input type="text" name="email" class="form-control" id="product-title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label" for="product-title">Mpt de passe</label>
+                            <div class="form-control-wrap">
+                                <input type="text" name="password" class="form-control" id="product-title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label" for="product-title">Telephone</label>
+                            <div class="form-control-wrap">
+                                <input type="text" name="phone" class="form-control" id="product-title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="default-07">Type d'appareil</label>
+                        <div class="form-control-wrap">
+                            <div class="form-control-select-multiple">
+                                <select name="categories[]" class="form-select" id="default-07" multiple aria-label="multiple select example">
+                                    @foreach($categories as $category)
+                                        <option value="{{$category->id}}">{{$category->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Image</label>
+                        <div class="form-control-wrap">
+                            <input type="file" name="image" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary"><em class="icon ni ni-plus"></em><span>Ajouter</span></button>
+                    </div>
+                </div>
+            </form>
+        </div><!-- .nk-block -->
+    </div>
+
 @endsection

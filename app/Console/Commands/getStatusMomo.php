@@ -36,7 +36,6 @@ class GetStatusMomo extends Command
                 $statusResponse = $this->momo->getPaymentStatus($paiement->reference_id);
                 $status = $statusResponse['status'];
 
-                logger($status);
                 $paiement->update([
                     'status' => match ($status) {
                     'SUCCESSFUL' => 'confirmed',

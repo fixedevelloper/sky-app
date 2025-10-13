@@ -36,22 +36,20 @@ class SecurityController extends Controller
                 'password.required' => 'password  is required!',
             ]);
             if ($validator->fails()) {
-                toastr()->error("Email or password required",  ["Failed loggedIn"]);
+                flash()->error("Email or password required",  ["Failed loggedIn"]);
                 return redirect()->back()
                     ->withErrors($validator)->with(['message' => $messages])
                     ->withInput();
             }
 
-            logger($request->all());
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
-                toastr()->success("Authentication successful",  ["Success loggedIn"]);
+                flash()->success("Authentication successful",  ["Success loggedIn"]);
                 $request->session()->regenerate();
-                logger('ici-----2');
                     return redirect()->route('dashboard');
 
             }
-            logger('ici-----');
-            toastr()->error("User not found or User not activate",  ["Failed loggedIn"]);
+            flash()->error("User not found or User not activate",  ["Failed loggedIn"]);
+
             return redirect()->route('signin');
         }
         return view('security.login');
