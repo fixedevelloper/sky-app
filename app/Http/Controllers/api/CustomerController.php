@@ -41,7 +41,7 @@ class CustomerController extends Controller
         // Validation de base
         $rules = [
             'name' => 'required|string',
-            'phone' => 'required|string|unique:customers,phone',
+            'phone' => 'required|string',
             'localisation' => 'nullable|string',
             'commercial_code' => 'nullable|string',
             'is_customer' => 'required|string',
@@ -90,7 +90,15 @@ class CustomerController extends Controller
                     }
                 }
             }
-            $customer = Customer::create($data);
+            $customer = Customer::where(['phone'=>$data['phone'], 'name'=>$data['name']])->first();
+
+            if (is_null($customer)){
+                $customer = Customer::create($data);
+            } else {
+                $customer->update($data); // ✅ Correction ici
+            }
+
+
 
             $payType = $request->is_cash == 0 ? 'cash' : 'leasing';
             $paymentMode = $request->is_cash == 0 ? 'CASH' : 'LEASING';
