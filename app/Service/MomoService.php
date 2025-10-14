@@ -37,7 +37,6 @@ class MomoService
         {
             $token = $this->getToken();
             logger($token);
-            logger(config('services.momo.env', 'mtncameroon'));
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $token,
                 'X-Reference-Id' => $referenceId,

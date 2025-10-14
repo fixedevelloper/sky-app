@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Paiement;
 use App\Service\MomoService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class MomoController extends Controller
@@ -58,5 +59,41 @@ class MomoController extends Controller
             'confirmed_at' => $paiement->confirmed_at,
         ]);
     }
+    public function getToken(Request $request)
+    {
+        $url = 'https://proxy.momoapi.mtn.com/collection/oauth2/token';
 
+        $headers = [
+            'Ocp-Apim-Subscription-Key' => config('services.momo.subscription_key'),
+            'Content-Type' => 'application/x-www-form-urlencoded',
+        ];
+
+        try {
+            // ✅ Envoie du body en "form-data" (grant_type=client_credentials)
+            $response = Http::asForm()
+                ->withHeaders($headers)
+                ->withBasicAuth(
+                    config('services.momo.api_user'),
+                    config('services.momo.api_key')
+                )
+                ->post($url, [
+                    'grant_type' => 'client_credentials',
+                ]);
+
+            if ($response->successful()) {
+                logger($response);
+                return response()->json($response->json());
+            }
+
+            return response()->json([
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ], $response->status());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'request_failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
