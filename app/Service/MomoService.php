@@ -50,7 +50,7 @@ class MomoService
                 'externalId' => $referenceId,
                 'payer' => [
                     'partyIdType' => 'MSISDN',
-                    'partyId' => '+237'.$phone
+                    'partyId' => '237'.$phone
                 ],
                 'payerMessage' => 'Paiement commande',
                 'payeeNote' => 'Merci pour votre achat'
