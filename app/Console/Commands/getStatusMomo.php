@@ -36,16 +36,30 @@ class GetStatusMomo extends Command
                 $statusResponse = $this->momo->getPaymentStatus($paiement->reference_id);
                 $status = $statusResponse['status'];
 
-                $paiement->update([
-                    'status' => match ($status) {
-                    'SUCCESSFUL' => 'confirmed',
-                        'FAILED'     => 'failed',
-                        default      => 'pending',
-                    },
-                    'confirmed_at' => $status === 'SUCCESSFUL' ? now() : $paiement->confirmed_at,
-                ]);
+                $this->line("Statut reçu : {$status}");
+                $this->line("Statut avant update : {$paiement->status}");
 
-                $this->line("→ Statut mis à jour : {$paiement->status}");
+                $updateData = [
+                    'status' => match($status){
+                    'SUCCESSFUL' => 'confirmed',
+        'FAILED' => 'failed',
+        default => 'pending',
+    },
+];
+
+if ($status === 'SUCCESSFUL') {
+    $updateData['confirmed_at'] = now();
+}
+
+$success = $paiement->update($updateData);
+
+if (!$success) {
+    $this->line("⚠️ Mise à jour échouée");
+}
+
+$paiement->refresh();
+$this->line("Statut après update : {$paiement->status}");
+
             } catch (\Exception $e) {
                 $this->error("Erreur pour le paiement #{$paiement->id} : " . $e->getMessage());
                 continue;
