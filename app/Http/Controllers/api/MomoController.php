@@ -39,6 +39,8 @@ class MomoController extends Controller
 
     public function checkStatus($referenceId)
     {
+        $momo=$this->momo->getPaymentStatus($referenceId);
+        logger($this->momo);
         // Rechercher le paiement correspondant
         $paiement = Paiement::where('reference_id', $referenceId)->first();
 
