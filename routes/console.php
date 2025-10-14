@@ -13,4 +13,4 @@ Artisan::command('inspire', function () {
 })->everyFiveMinutes();*/
 Artisan::command('momo:status',function (){
     info('Commande momo:status exécutée automatiquement.');
-})->everyFiveMinutes();
+})->everyMinute();
