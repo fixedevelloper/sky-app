@@ -40,6 +40,7 @@ return [
         'subscription_key' => env('MOMO_SUBSCRIPTION_KEY'),
         'api_user' => env('MOMO_API_USER'),
         'api_key' => env('MOMO_API_KEY'),
+        'currency' => env('MOMO_CURRENCY'),
     ],
 
 ];

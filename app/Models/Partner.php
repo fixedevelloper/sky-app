@@ -13,4 +13,8 @@ class Partner extends Model
     protected $casts = [
         'categories' => 'array',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

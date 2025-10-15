@@ -90,14 +90,13 @@ class CustomerController extends Controller
                     }
                 }
             }
-            $customer = Customer::where(['phone'=>$data['phone'], 'name'=>$data['name']])->first();
+            $customer = Customer::where(['phone' => $data['phone'], 'name' => $data['name']])->first();
 
-            if (is_null($customer)){
+            if (is_null($customer)) {
                 $customer = Customer::create($data);
             } else {
                 $customer->update($data); // ✅ Correction ici
             }
-
 
 
             $payType = $request->is_cash == 0 ? 'cash' : 'leasing';
@@ -130,18 +129,28 @@ class CustomerController extends Controller
             }
 
             $referenceId = Str::uuid()->toString();
-            $status = $this->momo->requestToPay($referenceId, $request->phone, $amount);
+            if ($request->platform=='ORANGE'){
+                throw new \Exception("La plateforme Orange Money est temporairement en maintenance. Veuillez utiliser une autre option comme MTN.");
 
-            if ($status) {
+            }
+            $status = $this->momo->requestToPay($referenceId, $request->phone, $request->amount);
+
+            if ($status == 202) {
                 $purchase->paiements()->create([
                     'phone' => $request->phone,
-                    'amount' => $amount,
-                    'amount_rest' => $amount,
+                    'amount' => $request->amount,
+                    'amount_rest' => $amount-$request->amount,
                     'operator' => $request->platform ?? 'MTN',
                     'status' => 'PENDING',
                     'reference_id' => $referenceId,
                 ]);
+            } else {
+                throw new \Exception("Le paiement a échoué. Veuillez vérifier les points suivants :
+- Le numéro de téléphone est valide.
+- Le solde est suffisant.
+- L'opérateur est correct.");
             }
+
 
             DB::commit();
 

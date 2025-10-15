@@ -36,17 +36,17 @@ class MomoService
        public function requestToPay($referenceId, $phone, $amount, $currency = 'XAF')
         {
             $token = $this->getToken();
-            logger($token);
+            logger($referenceId);
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $token,
                 'X-Reference-Id' => $referenceId,
                 'X-Target-Environment' => config('services.momo.env', 'mtncameroon'),
                 'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
                 'Content-Type' => 'application/json',
-                'X-Callback-Url'=>route('momo.callback')
+                //'X-Callback-Url'=>route('momo.callback')
             ])->post($this->baseUrl . '/v1_0/requesttopay', [
                 'amount' => $amount,
-                'currency' => $currency,
+                'currency' => config('services.momo.currency', 'XAF'),
                 'externalId' => $referenceId,
                 'payer' => [
                     'partyIdType' => 'MSISDN',
@@ -56,6 +56,7 @@ class MomoService
                 'payeeNote' => 'Merci pour votre achat'
             ]);
             logger('✅ Réponse MoMo reçue', [$response->status()]);
+            logger(json_encode($response->body()));
             return $response->status();
         }
 
