@@ -90,7 +90,7 @@ class CustomerController extends Controller
                     }
                 }
             }
-            $customer = Customer::where(['phone' => $data['phone'], 'name' => $data['name']])->first();
+            $customer = Customer::where(['phone' => $data['phone']])->first();
 
             if (is_null($customer)) {
                 $customer = Customer::create($data);
