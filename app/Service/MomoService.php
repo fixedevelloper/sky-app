@@ -43,7 +43,7 @@ class MomoService
                 'X-Target-Environment' => config('services.momo.env', 'mtncameroon'),
                 'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
                 'Content-Type' => 'application/json',
-                //'X-Callback-Url'=>route('momo.callback')
+                'X-Callback-Url'=>route('momo.callback')
             ])->post($this->baseUrl . '/v1_0/requesttopay', [
                 'amount' => $amount,
                 'currency' => config('services.momo.currency', 'XAF'),
