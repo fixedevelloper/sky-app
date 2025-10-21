@@ -45,6 +45,7 @@ class CustomerController extends Controller
             'localisation' => 'nullable|string',
             'commercial_code' => 'nullable|string',
             'is_customer' => 'required|string',
+
         ];
 
         // Si ce n’est pas un client
@@ -56,6 +57,10 @@ class CustomerController extends Controller
                 'image_url' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'image_cni_recto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 'image_cni_verso' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ]);
+        }else{
+            $rules = array_merge($rules, [
+                'codeSecret' => 'required|string',
             ]);
         }
 
@@ -179,7 +184,7 @@ class CustomerController extends Controller
 
         // 🔹 Récupération du client
         $customer = Customer::query()
-            ->where('commercial_code', $validated['commercial_code'])
+            ->where('code_key_account', $validated['commercial_code'])
             ->when(isset($validated['phone']), fn($q) => $q->where('phone', $validated['phone']))
             ->when(isset($validated['name']), fn($q) => $q->where('name', $validated['name']))
             ->firstOrFail();

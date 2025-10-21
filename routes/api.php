@@ -23,5 +23,6 @@ Route::apiResource('purchases', PurchaseController::class);
 Route::apiResource('paiements', PaiementController::class);
 Route::post('/momo/pay', [MomoController::class, 'pay']);
 Route::get('/momo/status/{referenceId}', [MomoController::class, 'checkStatus']);
+Route::get('/momo/status-sale-point/{referenceId}', [MomoController::class, 'checkStatusSalePoint']);
 Route::post('/momo/token', [MomoController::class, 'getToken']);
 

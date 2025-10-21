@@ -16,7 +16,10 @@ class PointSale extends Model
         'localisation',
         'image_url',
         'image_doc_fiscal',
-        'vendor_id'
+        'vendor_id',
+        'operator',
+        'referenceId',
+        'status'
     ];
 
     // 🔗 Relations

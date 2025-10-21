@@ -65,20 +65,13 @@ class PointSaleController extends Controller
             }
 
             // ✅ Création du point de vente
-            $pointSale = PointSale::create([
-                'name' => $validated['name'],
-                'activity' => $validated['activity'] ?? null,
-                'localisation' => $validated['localisation'] ?? null,
-                'image_url' => $this->storeImage($request, 'image_url', 'point_sales'),
-                'image_doc_fiscal' => $this->storeImage($request, 'image_doc_fiscal', 'point_sales'),
-                'vendor_id' => $vendor->id
-            ]);
+
             $referenceId = Str::uuid()->toString();
             if ($request->platform=='ORANGE'){
                 throw new \Exception("La plateforme Orange Money est temporairement en maintenance. Veuillez utiliser une autre option comme MTN.");
 
             }
-/*            $status = $this->momo->requestToPay($referenceId, $request->vendor_phone, 15000);
+           $status = $this->momo->requestToPay($referenceId, $request->vendor_phone, 15000);
 
             if ($status == 202) {
 
@@ -87,11 +80,21 @@ class PointSaleController extends Controller
 - Le numéro de téléphone est valide.
 - Le solde est suffisant.
 - L'opérateur est correct.");
-            }*/
-
+            }
+            $pointSale = PointSale::create([
+                'name' => $validated['name'],
+                'activity' => $validated['activity'] ?? null,
+                'localisation' => $validated['localisation'] ?? null,
+                'operator' => $request->platform,
+                'referenceId' => $referenceId,
+                'image_url' => $this->storeImage($request, 'image_url', 'point_sales'),
+                'image_doc_fiscal' => $this->storeImage($request, 'image_doc_fiscal', 'point_sales'),
+                'vendor_id' => $vendor->id
+            ]);
             DB::commit();
 
             return response()->json([
+                'referenceId' => $referenceId,
                 'name'=>$pointSale->name,
                 'activity'=>$pointSale->vendor->activity,
                 'localisation'=>$pointSale->localisation,

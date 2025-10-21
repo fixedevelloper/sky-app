@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Paiement;
+use App\Models\PointSale;
 use App\Service\MomoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -40,7 +41,6 @@ class MomoController extends Controller
     public function checkStatus($referenceId)
     {
         $response=$this->momo->getPaymentStatus($referenceId);
-        logger(json_encode($response));
         // Rechercher le paiement correspondant
         $paiement = Paiement::where('reference_id', $referenceId)->first();
 
@@ -59,6 +59,37 @@ class MomoController extends Controller
             'status' => $paiement->status,
             'amount' => $paiement->amount,
             'confirmed_at' => $paiement->confirmed_at,
+        ]);
+    }
+    public function checkStatusSalePoint($referenceId)
+    {
+
+        $pointSale = PointSale::where('referenceId', $referenceId)->first();
+
+        // Si non trouvé
+        if (!$pointSale) {
+            return response()->json([
+                'referenceId' => $referenceId,
+                'status' => 'not_found',
+                'message' => 'Aucun paiement trouvé pour cette référence.'
+            ], 404);
+        }
+
+        // Si trouvé
+        return response()->json([
+            'referenceId' => $pointSale->referenceId,
+            'status' => $pointSale->status,
+            'amount' => $pointSale->amount,
+            'confirmed_at' => $pointSale->confirmed_at,
+            'name'=>$pointSale->name,
+            'activity'=>$pointSale->vendor->activity,
+            'localisation'=>$pointSale->localisation,
+            'image_url'=>$pointSale->image_url,
+            'image_doc_fiscal'=>$pointSale->image_doc_fiscal,
+            'vendor_name'=>$pointSale->vendor->name,
+            'phone'=>$pointSale->vendor->phone,
+            'image_cni_recto'=>$pointSale->vendor->image_cni_recto,
+            'image_cni_verso'=>$pointSale->vendor->image_cni_verso,
         ]);
     }
     public function getToken(Request $request)
