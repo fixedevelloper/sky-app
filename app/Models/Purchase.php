@@ -24,6 +24,7 @@ class Purchase extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -33,7 +34,7 @@ class Purchase extends Model
     {
         return $this->hasMany(Paiement::class);
     }
-    public function customProduct()
+   public function customProduct()
     {
         return $this->hasOne(CustomProduct::class);
     }

@@ -3,12 +3,10 @@
 
 @endsection
 
-@section('title', 'Point de ventes')
+@section('title', 'Achats')
 
 @section('content')
-
-    <livewire:point-sale />
-
+    <livewire:purchase-commercial />
 @endsection
 
 

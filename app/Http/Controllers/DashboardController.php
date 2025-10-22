@@ -27,9 +27,10 @@ class DashboardController extends Controller
     }
     public function vendors(Request $request)
     {
-        $vendors=User::query()->where('user_type','vendor')->paginate(20);
+      //  $vendors=User::query()->where('user_type','vendor')->paginate(20);
+        $vendors=PointSale::query()->with('vendor')->paginate(20);
         return view('admin.vendors',[
-            'items'=>$vendors
+           // 'items'=>$vendors
         ]);
     }
     public function partners(Request $request)
@@ -174,8 +175,21 @@ class DashboardController extends Controller
     public function purchase()
     {
 
-        $purchase=Purchase::query()->paginate(20);
+        //$purchase=Purchase::query()->paginate(20);
+        $purchase=Paiement::query()->paginate(20);
         return view('admin.purchase',[
+            'items'=>$purchase
+        ]);
+    }
+    public function purchase_commercial()
+    {
+
+        //$purchase=Purchase::query()->paginate(20);
+        $purchase=Paiement::query()
+            ->join('purchases', 'purchases.id', '=', 'paiements.purchase_id')
+            ->join('customers', 'customers.id', '=', 'purchases.customer_id')
+            ->where('customers.point_sale_id','!=',null)->paginate(20);
+        return view('admin.purchase-commercial',[
             'items'=>$purchase
         ]);
     }

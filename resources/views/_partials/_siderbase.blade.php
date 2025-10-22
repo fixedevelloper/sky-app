@@ -22,17 +22,11 @@
                                 <span class="nk-menu-text">Dashboard</span>
                             </a>
                         </li><!-- .nk-menu-item -->
-
+                        @if(auth()->user()->user_type=='admin' ||  auth()->user()->user_type=='commercial')
                         <li class="nk-menu-item">
                             <a href="{{route('vendors')}}" class="nk-menu-link">
-                                <span class="nk-menu-icon"><em class="icon ni ni-users"></em></span>
-                                <span class="nk-menu-text">Vendeurs</span>
-                            </a>
-                        </li>
-                        <li class="nk-menu-item">
-                            <a href="{{route('partners')}}" class="nk-menu-link">
-                                <span class="nk-menu-icon"><em class="icon ni ni-user-cross-fill"></em></span>
-                                <span class="nk-menu-text">Partenaires</span>
+                                <span class="nk-menu-icon"><em class="icon ni ni-houzz"></em></span>
+                                <span class="nk-menu-text">Point de ventes</span>
                             </a>
                         </li>
                         <li class="nk-menu-item">
@@ -41,6 +35,29 @@
                                 <span class="nk-menu-text">Achats</span>
                             </a>
                         </li>
+                        <li class="nk-menu-item">
+                            <a href="{{route('purchase_commercial')}}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-sign-dollar"></em></span>
+                                <span class="nk-menu-text">Vente-Commerciale</span>
+                            </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()->user_type=='finance' ||  auth()->user()->user_type=='partner')
+                            <li class="nk-menu-item">
+                                <a href="{{route('purchase_commercial')}}" class="nk-menu-link">
+                                    <span class="nk-menu-icon"><em class="icon ni ni-sign-dollar"></em></span>
+                                    <span class="nk-menu-text">Vente-Commerciale</span>
+                                </a>
+                            </li>
+                        @endif
+                        @if(auth()->user()->user_type=='admin')
+                        <li class="nk-menu-item">
+                            <a href="{{route('partners')}}" class="nk-menu-link">
+                                <span class="nk-menu-icon"><em class="icon ni ni-user-cross-fill"></em></span>
+                                <span class="nk-menu-text">Partenaires</span>
+                            </a>
+                        </li>
+
                         <li class="nk-menu-heading">
                             <h6 class="overline-title text-primary-alt">Parametrage</h6>
                         </li>
@@ -56,6 +73,7 @@
                                 <span class="nk-menu-text">produits</span>
                             </a>
                         </li>
+                        @endif
                     </ul><!-- .nk-menu -->
                 </div><!-- .nk-sidebar-menu -->
                 <div class="nk-sidebar-footer">

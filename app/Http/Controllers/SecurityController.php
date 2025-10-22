@@ -50,7 +50,7 @@ class SecurityController extends Controller
             }
             flash()->error("User not found or User not activate",  ["Failed loggedIn"]);
 
-            return redirect()->route('signin');
+            return redirect()->route('login');
         }
         return view('security.login');
     }

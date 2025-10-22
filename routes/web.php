@@ -28,6 +28,8 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         ->name('point_sale');
     Route::match(["POST", "GET"], '/purchases', [DashboardController::class, 'purchase'])
         ->name('purchases');
+    Route::match(["POST", "GET"], '/purchase_commercial', [DashboardController::class, 'purchase_commercial'])
+        ->name('purchase_commercial');
     Route::match(["POST", "GET"], '/purchases/{id}/paiements', [DashboardController::class, 'paiements'])
         ->name('paiements');
     Route::match(["POST", "GET"], '/partners', [DashboardController::class, 'partners'])
