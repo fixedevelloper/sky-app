@@ -181,6 +181,13 @@ class DashboardController extends Controller
             'items'=>$purchase
         ]);
     }
+    public function facture()
+    {
+
+        return view('admin.facture',[
+
+        ]);
+    }
     public function purchase_commercial()
     {
 

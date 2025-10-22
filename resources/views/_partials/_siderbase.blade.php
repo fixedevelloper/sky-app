@@ -41,12 +41,24 @@
                                 <span class="nk-menu-text">Vente-Commerciale</span>
                             </a>
                         </li>
+                            <li class="nk-menu-item">
+                                <a href="{{route('facture')}}" class="nk-menu-link">
+                                    <span class="nk-menu-icon"><em class="icon ni ni-wallet-in"></em></span>
+                                    <span class="nk-menu-text">Etats de credits</span>
+                                </a>
+                            </li>
                         @endif
                         @if(auth()->user()->user_type=='finance' ||  auth()->user()->user_type=='partner')
                             <li class="nk-menu-item">
                                 <a href="{{route('purchase_commercial')}}" class="nk-menu-link">
                                     <span class="nk-menu-icon"><em class="icon ni ni-sign-dollar"></em></span>
                                     <span class="nk-menu-text">Vente-Commerciale</span>
+                                </a>
+                            </li>
+                            <li class="nk-menu-item">
+                                <a href="{{route('facture')}}" class="nk-menu-link">
+                                    <span class="nk-menu-icon"><em class="icon ni ni-wallet-in"></em></span>
+                                    <span class="nk-menu-text">Etats de credits</span>
                                 </a>
                             </li>
                         @endif
