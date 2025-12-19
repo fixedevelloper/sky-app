@@ -32,14 +32,14 @@ class PointSaleController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string',
-                'vendor_name' => 'required|string',
-                'vendor_phone' => 'required|string',
-                'vendor_activity' => 'required|string',
-                'activity' => 'nullable|string',
+                'name_salepoint' => 'required|string',
+                'name_promote' => 'required|string',
+                'phone' => 'required|string',
+                'phonePv' => 'nullable|string',
+                'activity' => 'required|string',
                 'localisation' => 'nullable|string',
-                'vendor_image' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
-                'image_url' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
+                'image_piece' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
+                //'image_url' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
                 'image_cni_verso' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
                 'image_cni_recto' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
                 'image_doc_fiscal' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
@@ -48,17 +48,17 @@ class PointSaleController extends Controller
             DB::beginTransaction();
 
             // ✅ Vérifie si le vendeur existe
-            $vendor = User::firstWhere('phone', $validated['vendor_phone']);
+            $vendor = User::firstWhere('phone', $validated['phone']);
 
             if (!$vendor) {
                 $vendor = User::create([
-                    'name' => $validated['vendor_name'],
-                    'phone' => $validated['vendor_phone'],
-                    'activity' => $validated['vendor_activity'],
+                    'name' => $validated['name_promote'],
+                    'phone' => $validated['phone'],
+                    'activity' => $validated['activity'],
                     'user_type' => 'vendor',
-                    'email' => $validated['vendor_phone'] . '@sky.com',
+                    'email' => $validated['phone'] . '@sky.com',
                     'password' => bcrypt('12345678@9'),
-                    'image_url' => $this->storeImage($request, 'vendor_image', 'vendors'),
+                    'image_url' => $this->storeImage($request, 'image_piece', 'vendors'),
                     'image_cni_recto' => $this->storeImage($request, 'image_cni_recto', 'cni'),
                     'image_cni_verso' => $this->storeImage($request, 'image_cni_verso', 'cni'),
                 ]);
@@ -71,7 +71,7 @@ class PointSaleController extends Controller
                 throw new \Exception("La plateforme Orange Money est temporairement en maintenance. Veuillez utiliser une autre option comme MTN.");
 
             }
-           $status = $this->momo->requestToPay($referenceId, $request->vendor_phone, 15000);
+           $status = $this->momo->requestToPay($referenceId, $request->phone, 15000);
 
             if ($status == 202) {
 
@@ -82,12 +82,13 @@ class PointSaleController extends Controller
 - L'opérateur est correct.");
             }
             $pointSale = PointSale::create([
-                'name' => $validated['name'],
+                'name' => $validated['name_salepoint'],
                 'activity' => $validated['activity'] ?? null,
+                 'phone' => $validated['phonePv'] ?? null,
                 'localisation' => $validated['localisation'] ?? null,
                 'operator' => $request->platform,
                 'referenceId' => $referenceId,
-                'image_url' => $this->storeImage($request, 'image_url', 'point_sales'),
+                'image_url' => $this->storeImage($request, 'image_piece', 'point_sales'),
                 'image_doc_fiscal' => $this->storeImage($request, 'image_doc_fiscal', 'point_sales'),
                 'vendor_id' => $vendor->id
             ]);

@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('image_cni_recto')->nullable();
             $table->string('image_cni_verso')->nullable();
             $table->string('activity')->nullable();
-            $table->enum('user_type', ['admin','vendor','partner'])->default('vendor');
+             $table->string('localisation')->nullable();
+            $table->enum('user_type', ['admin','vendor','partner','finance','commercial','customer'])->default('vendor');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

@@ -20,7 +20,8 @@ class Customer extends Model
         'image_cni_recto',
         'image_cni_verso',
         'image_url',
-        'point_sale_id'
+        'point_sale_id',
+        'user_id'
     ];
 
     // 🔗 Relations
@@ -29,6 +30,10 @@ class Customer extends Model
         return $this->belongsTo(PointSale::class);
     }
 
+        public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     public function purchases()
     {
         return $this->hasMany(Purchase::class);
