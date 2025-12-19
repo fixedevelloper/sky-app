@@ -110,9 +110,10 @@ class PurchaseController extends Controller
     }
     public function storeCustomer(Request $request)
     {
+        try {
         $user = auth()->user();
         logger($request->all());
-        try {
+
             $validated = $request->validate([
                 'product_name' => 'required_if:is_custom,1|string',
                 'platform' => 'required|string',
@@ -133,7 +134,7 @@ class PurchaseController extends Controller
             $purchase = Purchase::create([
                 'product_id' => $validated['is_custom'] ? null : $validated['product_id'],
                 'pay_type' => $payType,
-                'is_custom_product' => $$validated['is_custom'],
+                'is_custom_product' => $validated['is_custom'],
                 'payment_mode' => $paymentMode,
                 'image_url' => $request->imageTelephone ?? null,
                 'customer_id' => $customer->id,
@@ -177,7 +178,7 @@ class PurchaseController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            logger()->error("storeCustomer error: " . $e->getMessage(), ['user_id' => $user->id]);
+            logger()->error("storeCustomer error: " . $e->getTraceAsString(), ['user_id' => $user->id]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
