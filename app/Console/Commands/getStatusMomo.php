@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Pmes;
 use App\Models\PointSale;
 use App\Service\MomoService;
 use Illuminate\Console\Command;
@@ -25,7 +26,8 @@ class GetStatusMomo extends Command
     {
         $paiements = Paiement::query()->where('status', 'pending')->get();
         $salePoints=PointSale::query()->where('status', 'pending')->get();
-        if ($paiements->isEmpty() && $salePoints->isEmpty()) {
+        $pmess=Pmes::query()->where('status', 'pending')->get();
+        if ($paiements->isEmpty() && $salePoints->isEmpty() && $pmess->isEmpty()) {
             $this->info('Aucun paiement en attente trouvé.');
             return Command::SUCCESS;
         }
@@ -102,6 +104,43 @@ $this->line("Statut après update : {$salePoint->status}");
 
             } catch (\Exception $e) {
                 $this->error("Erreur pour le paiement #{$salePoint->id} : " . $e->getMessage());
+                continue;
+            }
+        }
+
+        foreach ($pmess as $pmes) {
+            $this->info("Vérification du paiement #{$pmes->id} ({$pmes->referenceId}) ...");
+
+            try {
+                $statusResponse = $this->momo->getPaymentStatus($pmes->referenceId);
+                $status = $statusResponse['status'];
+
+                $this->line("Statut reçu : {$status}");
+                $this->line("Statut avant update : {$pmes->status}");
+
+                $updateData = [
+                    'status' => match($status){
+                    'SUCCESSFUL' => 'confirmed',
+        'FAILED' => 'failed',
+        default => 'pending',
+    },
+];
+
+if ($status === 'SUCCESSFUL') {
+    $updateData['confirmed_at'] = now();
+}
+
+$success = $pmes->update($updateData);
+
+if (!$success) {
+    $this->line("⚠️ Mise à jour échouée");
+}
+
+$pmes->refresh();
+$this->line("Statut après update : {$pmes->status}");
+
+            } catch (\Exception $e) {
+                $this->error("Erreur pour le paiement #{$pmes->id} : " . $e->getMessage());
                 continue;
             }
         }

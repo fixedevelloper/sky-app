@@ -38,6 +38,8 @@ class PointSaleController extends Controller
                 'phonePv' => 'nullable|string',
                 'activity' => 'required|string',
                 'localisation' => 'nullable|string',
+                'platform' => ['required', 'in:MTN,ORANGE'],
+                'phonePayment' => ['required', 'string'],
                 'image_piece' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
                 //'image_url' => 'required|image|mimes:jpg,jpeg,png,gif|max:2048',
                 'image_cni_verso' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
@@ -71,7 +73,7 @@ class PointSaleController extends Controller
                 throw new \Exception("La plateforme Orange Money est temporairement en maintenance. Veuillez utiliser une autre option comme MTN.");
 
             }
-           $status = $this->momo->requestToPay($referenceId, $request->phone, 15000);
+           $status = $this->momo->requestToPay($referenceId, $request->phonePayment, 15000);
 
             if ($status == 202) {
 
@@ -81,6 +83,7 @@ class PointSaleController extends Controller
 - Le solde est suffisant.
 - L'opérateur est correct.");
             }
+
             $pointSale = PointSale::create([
                 'name' => $validated['name_salepoint'],
                 'activity' => $validated['activity'] ?? null,
@@ -125,6 +128,10 @@ class PointSaleController extends Controller
 
     /**
      * Stocke un fichier uploadé dans storage/app/public et retourne l'URL publique
+     * @param Request $request
+     * @param $field
+     * @param $folder
+     * @return string|null
      */
     private function storeImage(Request $request,  $field,  $folder): ?string
     {
