@@ -69,7 +69,10 @@ class PurchaseController extends Controller
             ? (float) $product->amount
             : (float) ($product->price ?? 0);
 
-        $paid = (float) $purchase->paiements->sum('amount');
+        $paid = (float) $purchase->paiements()
+            ->where('status', 'confirmed')
+            ->sum('amount');
+
         $remaining = max(0, $total - $paid);
 
         return [
@@ -236,7 +239,7 @@ class PurchaseController extends Controller
             $purchase = Purchase::create([
                 'product_id' => $validated['is_custom'] ? null : $validated['product_id'],
                 'pay_type' => $payType,
-                'is_custom_product' => $$validated['is_custom'],
+                'is_custom_product' => $validated['is_custom'],
                 'payment_mode' => $paymentMode,
                 'image_url' => $request->imageTelephone ?? null,
                 'customer_id' => $customer->id,
@@ -288,7 +291,7 @@ class PurchaseController extends Controller
             logger()->error("Erreur storeCommercial", [
                 'user_id' => $user->id,
                 'request' => $request->all(),
-                'message' => $e->getMessage()
+                'message' => $e
             ]);
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }

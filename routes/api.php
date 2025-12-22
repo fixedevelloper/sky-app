@@ -34,3 +34,7 @@ Route::get('/momo/status/{referenceId}', [MomoController::class, 'checkStatus'])
 Route::get('/momo/status-sale-point/{referenceId}', [MomoController::class, 'checkStatusSalePoint']);
 Route::post('/momo/token', [MomoController::class, 'getToken']);
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::put('/profile', [SecurityApiController::class, 'updateProfile']);
+    Route::post('/change-password', [SecurityApiController::class, 'changePassword']);
+});
