@@ -60,22 +60,22 @@
                                             <img src="{{ asset($item->image_url ?? 'assets/images/nophone.jpg') }}" alt="">
                                         </div>
                                         <div class="project-info">
-                                            <h6 class="title">{{ optional($item->purchase->customer)->name ?? '-' }}</h6>
+                                            <h6 class="title">{{ optional($item->purchase->customer->user)->name ?? '-' }}</h6>
                                         </div>
                                     </a>
                                 </td>
-                                <td class="nk-tb-col">{{ optional($item->purchase->customer)->phone ?? '-' }}</td>
+                                <td class="nk-tb-col">{{ optional($item->purchase->customer->user)->phone ?? '-' }}</td>
                                 <td class="nk-tb-col">{{ optional($item->purchase->customer)->localisation ?? '-' }}</td>
                                 <td class="nk-tb-col">{{ optional($item->purchase->customer)->code_commercial ?? '-' }}</td>
                                 <td class="nk-tb-col">
-                                    {{ optional($item->purchase->product)->name ?? optional($item->customProduct)->name ?? '-' }}
+                                    {{ optional($item->purchase->product)->name ?? optional($item->purchase->customProduct)->name ?? '-' }}
                                 </td>
                                 <td class="nk-tb-col">
-                                    {{ number_format(optional($item->purchase->product)->price ?? optional($item->customProduct)->amount ?? 0, 0, ',', ' ') }} F
+                                    {{ number_format(optional($item->purchase->product)->price ?? optional($item->purchase->customProduct)->amount ?? 0, 0, ',', ' ') }} F
                                 </td>
                                 <td class="nk-tb-col">
                                         <span class="badge bg-outline-primary">
-                                            {{ ucfirst($item->purchase->type ?? 'standard') }}
+                                            {{ ucfirst($item->purchase->pay_type ?? 'standard') }}
                                         </span>
                                 </td>
                             </tr>
