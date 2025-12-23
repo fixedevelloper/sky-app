@@ -50,13 +50,14 @@ class MomoService
                 'externalId' => $referenceId,
                 'payer' => [
                     'partyIdType' => 'MSISDN',
-                    'partyId' => '237'.$phone
+                    'partyId' => $phone
+                    //'partyId' => '237'.$phone
                 ],
                 'payerMessage' => 'Paiement commande',
                 'payeeNote' => 'Merci pour votre achat'
             ]);
             logger('✅ Réponse MoMo reçue', [$response->status()]);
-            logger(json_encode($response->body()));
+           // logger(json_encode($response->body()));
             return $response->status();
         }
 
