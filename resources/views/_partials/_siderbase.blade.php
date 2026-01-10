@@ -22,7 +22,7 @@
                                 <span class="nk-menu-text">Dashboard</span>
                             </a>
                         </li><!-- .nk-menu-item -->
-                        @if(auth()->user()->user_type=='admin' ||  auth()->user()->user_type=='commercial')
+                        @if(auth()->user()->hasAnyRole(['admin', 'commercial']))
                         <li class="nk-menu-item">
                             <a href="{{route('vendors')}}" class="nk-menu-link">
                                 <span class="nk-menu-icon"><em class="icon ni ni-houzz"></em></span>
@@ -48,7 +48,7 @@
                                 </a>
                             </li>
                         @endif
-                        @if(auth()->user()->user_type=='finance' ||  auth()->user()->user_type=='partner')
+                        @if(auth()->user()->hasAnyRole(['admin', 'finance','partner']))
                             <li class="nk-menu-item">
                                 <a href="{{route('purchase_commercial')}}" class="nk-menu-link">
                                     <span class="nk-menu-icon"><em class="icon ni ni-sign-dollar"></em></span>
@@ -62,7 +62,7 @@
                                 </a>
                             </li>
                         @endif
-                        @if(auth()->user()->user_type=='admin')
+                        @if(auth()->user()->hasAnyRole(['admin']))
                         <li class="nk-menu-item">
                             <a href="{{route('partners')}}" class="nk-menu-link">
                                 <span class="nk-menu-icon"><em class="icon ni ni-user-cross-fill"></em></span>

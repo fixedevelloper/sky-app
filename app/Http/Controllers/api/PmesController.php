@@ -53,6 +53,10 @@ class PmesController extends Controller
                 'image_bc' => ['required', 'image', 'max:2048'],
                 'image_bl' => ['required', 'image', 'max:2048'],
                 'image_facture' => ['required', 'image', 'max:2048'],
+                'image_avi' => ['required', 'image', 'max:2048'],
+                'image_contract1' => ['required', 'image', 'max:2048'],
+                'image_contract2' => ['required', 'image', 'max:2048'],
+                'image_plan_localisation' => ['required', 'image', 'max:2048'],
             ]);
 
             // 🔢 Calcul montant total (SOURCE DE VÉRITÉ)
@@ -70,18 +74,16 @@ class PmesController extends Controller
             $imageBc = $this->storeImage($request, 'image_bc', 'pmes/bc');
             $imageBl = $this->storeImage($request, 'image_bl', 'pmes/bl');
             $imageFacture = $this->storeImage($request, 'image_facture', 'pmes/factures');
+            $imageAvi = $this->storeImage($request, 'image_avi', 'pmes/avis');
+            $imageContract1 = $this->storeImage($request, 'image_contract1', 'pmes/contracts');
+            $imageContract2 = $this->storeImage($request, 'image_contract2', 'pmes/contracts');
+            $imagePl = $this->storeImage($request, 'image_contract2', 'pmes/contracts');
 
             // ✅ Vérifie si le vendeur existe
-            $vendor = User::firstWhere('phone', $validated['phone']);
+            $vendor = User::firstWhere(['phone'=>$validated['phone']]);
 
-            if (!$vendor) {
-                $vendor = User::create([
-                    'name' => $validated['name_responsable'],
-                    'phone' => $validated['phone'],
-                    'user_type' => 'vendor',
-                    'email' => $validated['phone'] . '@sky.com',
-                    'password' => bcrypt('12345678@9'),
-                ]);
+            if (!$vendor->hasRole('pme')) {
+                throw new \Exception("Vous etes pas autorise");
             }
             // 💳 Paiement MoMo
             $referenceId = (string) Str::uuid();
@@ -115,6 +117,10 @@ class PmesController extends Controller
                 'image_bc' => $imageBc,
                 'image_bl' => $imageBl,
                 'image_facture' => $imageFacture,
+                'image_avi' => $imageFacture,
+                'image_pl' => $imagePl,
+                'image_contract1' => $imageContract1,
+                'image_contract2' => $imageContract2,
                 'status' => Pmes::STATUS_PENDING,
                 'vendor_id' => $vendor->id
             ]);

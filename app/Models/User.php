@@ -2,90 +2,89 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * Attributs assignables en masse
-     */
     protected $fillable = [
-        'name',
-        'phone',
-        'email',
-        'image_url',
-        'user_type',
-        'password',
-        'image_cni_recto',
-        'image_cni_verso',
-        'activity'
+        'name', 'phone', 'email', 'password', 'image_url',
+        'image_cni_recto', 'image_cni_verso',
+        'activity', 'localisation', 'user_type', 'email_verified_at','roles'
     ];
 
     /**
      * Attributs cachés pour la sérialisation
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
-    /**
-     * Attributs castés automatiquement
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'user_type' => 'string',
+        'roles' => 'array', // 🔥 TRÈS IMPORTANT
     ];
 
-    // 🔗 Relations
-    public function partner()
-    {
-        return $this->belongsTo(Partner::class);
-    }
-    /**
-     * Un utilisateur "vendor" possède plusieurs points de vente
-     */
+    // Relations
     public function pointSales()
     {
         return $this->hasMany(PointSale::class, 'vendor_id');
     }
 
-    /**
-     * Si tu veux récupérer tous les clients liés à ses points de vente
-     */
+    public function partners()
+    {
+        return $this->hasMany(Partner::class);
+    }
+
     public function customers()
     {
-        return $this->hasManyThrough(Customer::class, PointSale::class, 'vendor_id', 'point_sale_id');
+        return $this->hasMany(Customer::class);
     }
 
-    /**
-     * Vérifie si l'utilisateur est Admin
-     */
-    public function isAdmin(): bool
+    public function orders()
     {
-        return $this->user_type === 'admin';
+        return $this->hasMany(Order::class);
     }
 
-    /**
-     * Vérifie si l'utilisateur est Vendor
-     */
-    public function isVendor(): bool
+    public function pmes()
     {
-        return $this->user_type === 'vendor';
+        return $this->hasMany(Pme::class);
+    }
+    /* ======================
+      Helpers pour les rôles
+      ====================== */
+
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->roles ?? []);
     }
 
-    /**
-     * Vérifie si l'utilisateur est Partner
-     */
-    public function isPartner(): bool
+    public function hasAnyRole(array $roles): bool
     {
-        return $this->user_type === 'partner';
+        return !empty(array_intersect($roles, $this->roles ?? []));
+    }
+
+    public function addRole(string $role): void
+    {
+        $roles = $this->roles ?? [];
+        if (!in_array($role, $roles)) {
+            $roles[] = $role;
+            $this->roles = $roles;
+            $this->save();
+        }
+    }
+
+    public function removeRole(string $role): void
+    {
+        $this->roles = array_values(
+            array_diff($this->roles ?? [], [$role])
+        );
+        $this->save();
     }
 }
+

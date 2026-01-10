@@ -50,63 +50,64 @@ class SecurityApiController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->user_type,
+                'roles' => $user->roles,
                 'token' => $token,
             ],
         ]);
     }
-public function register(Request $request)
-{
-    logger($request->all());
 
-    // 🔹 Validation
-    $request->validate([
-        'phone' => 'required|string',
-        'name' => 'required|string|max:255',
-        'email' => 'required|email',
-        'password' => 'required|string|min:4',
-    ]);
+    public function register(Request $request)
+    {
+        logger($request->all());
 
-    // 🔹 Vérifier si utilisateur existe
-    $existingUser = User::where('phone', $request->phone)
-                        ->orWhere('email', $request->email)
-                        ->first();
+        // 🔹 Validation
+        $request->validate([
+            'phone' => 'required|string',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'password' => 'required|string|min:4',
+        ]);
 
-    if ($existingUser) {
+        // 🔹 Vérifier si utilisateur existe
+        $existingUser = User::where('phone', $request->phone)
+            ->orWhere('email', $request->email)
+            ->first();
+
+        if ($existingUser) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Un utilisateur avec ce téléphone ou email existe déjà.',
+            ], 409);
+        }
+
+        // 🔹 Création de l'utilisateur
+        $user = User::create([
+            'phone' => $request->phone,
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+        $user->addRole('customer');
+        $customer = Customer::create([
+            'user_id' => $user->id,
+
+        ]);
+        // 🔹 Génération du token JWT
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // 🔹 Retour JSON avec token
         return response()->json([
-            'status' => 'error',
-            'message' => 'Un utilisateur avec ce téléphone ou email existe déjà.',
-        ], 409);
+            'status' => 'success',
+            'message' => 'Inscription réussie',
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->roles,
+                'token' => $token, // 🔹 Token utilisable côté NextAuth
+            ],
+        ]);
     }
-
-    // 🔹 Création de l'utilisateur
-    $user = User::create([
-        'phone' => $request->phone,
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'user_type' => 'customer',
-    ]);
- $customer = Customer::create([
-    'user_id'=>$user->id,
-
- ]);
-    // 🔹 Génération du token JWT
-     $token = $user->createToken('auth_token')->plainTextToken;
-
-    // 🔹 Retour JSON avec token
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Inscription réussie',
-        'data' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->user_role,
-            'token' => $token, // 🔹 Token utilisable côté NextAuth
-        ],
-    ]);
-}
 
 
     /**
@@ -133,6 +134,7 @@ public function register(Request $request)
             'data' => $request->user(),
         ]);
     }
+
     /**
      * 🔄 Mise à jour du profil
      */
@@ -141,7 +143,7 @@ public function register(Request $request)
         $user = $request->user();
 
         $validated = $request->validate([
-            'name'  => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'],
             'phone' => [
                 'sometimes',
                 'string',
@@ -166,8 +168,8 @@ public function register(Request $request)
         return Helpers::success([
             'message' => 'Profil mis à jour avec succès.',
             'user' => [
-                'id'    => $user->id,
-                'name'  => $user->name,
+                'id' => $user->id,
+                'name' => $user->name,
                 'phone' => $user->phone,
                 'email' => $user->email,
             ],

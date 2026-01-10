@@ -48,7 +48,10 @@
                                 <th class="nk-tb-col"><span class="sub-text">Nom du produit</span></th>
                                 <th class="nk-tb-col tb-col-xxl"><span class="sub-text">Categorie</span></th>
                                 <th class="nk-tb-col tb-col-lg"><span class="sub-text">prix</span></th>
-                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Prix leasing</span></th>
+                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Prix commercial</span></th>
+                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Prix PV</span></th>
+                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Prix distrution</span></th>
+                                <th class="nk-tb-col tb-col-lg"><span class="sub-text">Prix Pmes</span></th>
                                 <th class="nk-tb-col tb-col-lg"><span class="sub-text">Memoire</span></th>
                                 <th class="nk-tb-col nk-tb-col-tools text-end">
                                 </th>
@@ -79,7 +82,16 @@
                                     </td>
 
                                     <td class="nk-tb-col tb-col-xxl">
+                                        <span>{{$item->price_commercial}}</span>
+                                    </td>
+                                    <td class="nk-tb-col tb-col-xxl">
                                         <span>{{$item->price_leasing}}</span>
+                                    </td>
+                                    <td class="nk-tb-col tb-col-xxl">
+                                        <span>{{$item->price_distribute}}</span>
+                                    </td>
+                                    <td class="nk-tb-col tb-col-xxl">
+                                        <span>{{$item->price_pme}}</span>
                                     </td>
                                     <td class="nk-tb-col tb-col-xxl">
                                         <span>{{$item->memory}}</span>
@@ -139,9 +151,33 @@
                 </div>
                 <div class="col-12">
                     <div class="form-group">
-                        <label class="form-label" for="product-title">Prix du leasing</label>
+                        <label class="form-label" for="product-title">Prix du commercial</label>
+                        <div class="form-control-wrap">
+                            <input type="text" name="price_commercial" class="form-control" id="product-title">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label" for="product-title">Prix du point de vente</label>
                         <div class="form-control-wrap">
                             <input type="text" name="price_leasing" class="form-control" id="product-title">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label" for="product-title">Prix du distributeur</label>
+                        <div class="form-control-wrap">
+                            <input type="text" name="price_distribute" class="form-control" id="product-title">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label" for="product-title">Prix du Pmes</label>
+                        <div class="form-control-wrap">
+                            <input type="text" name="price_pme" class="form-control" id="product-title">
                         </div>
                     </div>
                 </div>

@@ -36,72 +36,68 @@ class DashboardController extends Controller
     public function partners(Request $request)
     {
         if ($request->isMethod('POST')) {
+            try {
+            // ✅ Validation stricte
+                $validated = $request->validate([
+                    'name'       => 'required|string|max:255',
+                    'role'    => 'required|string|in:vendor,distribute,pme,commercial,partner',
+                    'phone'      => 'required|string|max:20|unique:users,phone',
+                    'email'      => 'required|email|unique:users,email',
+                    'password'   => 'nullable|string|min:6',
+                    'image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+                ]);
 
-            // ✅ Validation sécurisée
-            $validated = $request->validate([
-                'name'        => 'required|string|max:255',
-                'phone'       => 'required|string|max:20|unique:users,phone',
-                'email'       => 'required|email|unique:users,email',
-                'password'    => 'required|string|min:6', // tu peux ajouter password_confirmation dans ton form
-                //'categories'  => 'required|string',
-                'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            ]);
 
             $imageUrl = null;
 
-            // ✅ Gestion propre de l’image
             if ($request->hasFile('image')) {
                 $imagePath = $request->file('image')->store('partners', 'public');
-                $imageUrl = asset('storage/' . $imagePath); // plus fiable que Storage::url + env()
+                $imageUrl = asset('storage/' . $imagePath);
             }
 
-            try {
-                DB::beginTransaction();
-                logger($validated);
-                // ✅ Création du user
-                $user = User::create([
-                    'name'       => $validated['name'],
-                    'phone'      => $validated['phone'],
-                    'email'      => $validated['email'],
-                    'user_type'  => 'partner',
-                    'password'   => Hash::make($validated['password']),
-                    'image_url'  => $imageUrl,
-                ]);
 
-                // ✅ Création du partenaire lié
-                Partner::create([
-                    'user_id'    => $user->id,
-                    'categories' => $request->categories,
+                DB::beginTransaction();
+
+                // ✅ Création utilisateur
+                $user = User::create([
+                    'name'      => $validated['name'],
+                    'phone'     => $validated['phone'],
+                    'email'     => $validated['email'],
+                    'password'  => Hash::make($validated['password'] ?? 'password123'),
+                    'image_url' => $imageUrl,
+
                 ]);
+                $user->addRole($validated['role']);
 
                 DB::commit();
 
                 return redirect()
                     ->back()
-                    ->with('success', '✅ Partenaire ajouté avec succès !');
+                    ->with('success', '✅ Partenaire ajouté avec succès');
 
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 DB::rollBack();
-                logger($e->getMessage());
-                // ✅ Journaliser l’erreur pour debug
-                Log::error('Erreur ajout partenaire : '.$e->getMessage());
+
+                Log::error('Erreur ajout partenaire', [
+                    'error' => $e->getMessage()
+                ]);
+
                 return redirect()
                     ->back()
-                    ->with('error', '❌ Une erreur est survenue. Merci de réessayer.');
+                    ->with('error', '❌ Une erreur est survenue, veuillez réessayer');
             }
         }
 
-        // ✅ Chargement des partenaires existants
-        $partners = User::query()
-            ->where('user_type', 'partner')
-            ->with('partner') // pour récupérer la relation si elle existe
+        // 📌 Liste des partenaires
+        $users = User::query()
+            ->latest()
             ->paginate(20);
 
         return view('admin.partners', [
-            'items'       => $partners,
-            'categories'  => Category::all(),
+            'items' => $users,
         ]);
     }
+
 
 
     public function updatePartner(Request $request, $id)
@@ -175,7 +171,6 @@ class DashboardController extends Controller
     public function purchase()
     {
 
-        //$purchase=Purchase::query()->paginate(20);
         $purchase=Paiement::query()->paginate(20);
         return view('admin.purchase',[
             'items'=>$purchase
@@ -230,6 +225,9 @@ class DashboardController extends Controller
                     'memory' => 'nullable|string|max:255',
                     'price' => 'required|numeric|min:0',
                     'price_leasing' => 'nullable|numeric|min:0',
+                    'price_pme' => 'nullable|numeric|min:0',
+                    'price_distribute' => 'nullable|numeric|min:0',
+                    'price_commercial' => 'nullable|numeric|min:0',
                     'category_id' => 'required|exists:categories,id',
                     'image_url' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
                 ]);

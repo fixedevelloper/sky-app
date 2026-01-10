@@ -8,6 +8,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,37 +17,49 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-      $user=  User::factory()->create([
-            'name' => 'Admin sky',
-            'phone' => '675066919',
-            'user_type' => 'admin',
-            'email' => 'sky@example.com',
-        ]);
-        PointSale::create([
-           'name'=>'Direction' ,
-            'localisation'=>'Douala bonamousadi',
-            'vendor_id'=>$user->id
-        ]);
-
-        DB::table('categories')->insert([
+        /** ==========================
+         *  USER ADMIN
+         *  ========================== */
+        $user = User::updateOrCreate(
+            ['email' => 'contact.info@dsc-group.org'], // clé unique
             [
-                'name'        => 'Philips',
+                'name'     => 'DSC admin',
+                'phone'    => '683806782',
+                'roles'    => ['admin','pme','commercial'],
+                'password' => Hash::make('00235'),
+            ]
+        );
+
+        /** ==========================
+         *  POINT DE VENTE
+         *  ========================== */
+        PointSale::updateOrCreate(
+            [
+                'vendor_id' => $user->id,
+                'name'      => 'Direction',
             ],
             [
-                'name'        => 'Omni',
+                'localisation' => 'Douala bonamousadi',
+            ]
+        );
 
-            ],
-            [
-                'name'        => 'Samsung',
 
-            ],
-            [
-                'name'        => 'Hp',
+        /** ==========================
+         *  CATEGORIES
+         *  ========================== */
+        $categories = [
+            'Philips',
+            'Omni',
+            'Samsung',
+            'Hp',
+        ];
 
-            ],
-            ]);
-
+        foreach ($categories as $category) {
+            DB::table('categories')->updateOrInsert(
+                ['name' => $category], // clé unique
+                ['name' => $category]
+            );
+        }
     }
+
 }

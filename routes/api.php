@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\api\CustomerController;
 use App\Http\Controllers\api\MomoController;
+use App\Http\Controllers\api\OrderController;
 use App\Http\Controllers\api\PaiementController;
 use App\Http\Controllers\api\PartnerController;
 use App\Http\Controllers\api\PmesController;
@@ -35,6 +36,12 @@ Route::get('/momo/status-sale-point/{referenceId}', [MomoController::class, 'che
 Route::post('/momo/token', [MomoController::class, 'getToken']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/orders', [OrderController::class, 'index']);           // Liste toutes les commandes
+    Route::get('/orders/{id}', [OrderController::class, 'show']);       // Détail d'une commande
+    Route::post('/orders', [OrderController::class, 'store']);          // Créer une commande avec items
+    Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']); // Mettre à jour le statut
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']); // Supprimer une commande
+
     Route::put('/profile', [SecurityApiController::class, 'updateProfile']);
     Route::post('/change-password', [SecurityApiController::class, 'changePassword']);
 });

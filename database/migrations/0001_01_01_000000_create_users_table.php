@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // ---------------------------
+        // 1️⃣ USERS
+        // ---------------------------
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -20,14 +23,15 @@ return new class extends Migration
             $table->string('image_cni_recto')->nullable();
             $table->string('image_cni_verso')->nullable();
             $table->string('activity')->nullable();
-             $table->string('localisation')->nullable();
-            $table->enum('user_type', ['admin','vendor','partner','finance','commercial','customer'])->default('vendor');
+            $table->string('localisation')->nullable();
+            $table->json('roles')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-            $table->softDeletes(); // ✅ optionnel pour restaurer un user supprimé
+            $table->softDeletes();
         });
+
 
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -57,7 +57,6 @@ class PointSaleController extends Controller
                     'name' => $validated['name_promote'],
                     'phone' => $validated['phone'],
                     'activity' => $validated['activity'],
-                    'user_type' => 'vendor',
                     'email' => $validated['phone'] . '@sky.com',
                     'password' => bcrypt('12345678@9'),
                     'image_url' => $this->storeImage($request, 'image_piece', 'vendors'),
@@ -65,7 +64,7 @@ class PointSaleController extends Controller
                     'image_cni_verso' => $this->storeImage($request, 'image_cni_verso', 'cni'),
                 ]);
             }
-
+            $vendor->addRole('vendor');
             // ✅ Création du point de vente
 
             $referenceId = Str::uuid()->toString();
@@ -73,7 +72,7 @@ class PointSaleController extends Controller
                 throw new \Exception("La plateforme Orange Money est temporairement en maintenance. Veuillez utiliser une autre option comme MTN.");
 
             }
-           $status = $this->momo->requestToPay($referenceId, $request->phonePayment, 15000);
+/*           $status = $this->momo->requestToPay($referenceId, $request->phonePayment, 15000);
 
             if ($status == 202) {
 
@@ -82,7 +81,7 @@ class PointSaleController extends Controller
 - Le numéro de téléphone est valide.
 - Le solde est suffisant.
 - L'opérateur est correct.");
-            }
+            }*/
 
             $pointSale = PointSale::create([
                 'name' => $validated['name_salepoint'],
