@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\CcaController;
 use App\Http\Controllers\api\CustomerController;
 use App\Http\Controllers\api\MomoController;
 use App\Http\Controllers\api\OrderController;
@@ -44,4 +45,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('/profile', [SecurityApiController::class, 'updateProfile']);
     Route::post('/change-password', [SecurityApiController::class, 'changePassword']);
+    Route::post('/cca/submit', [CcaController::class, 'submit']);
 });
