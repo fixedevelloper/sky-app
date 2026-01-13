@@ -41,32 +41,32 @@
                                 <span class="nk-menu-text">Vente-Commerciale</span>
                             </a>
                         </li>
-                            <li class="nk-menu-item">
+                   {{--         <li class="nk-menu-item">
                                 <a href="{{route('facture')}}" class="nk-menu-link">
                                     <span class="nk-menu-icon"><em class="icon ni ni-wallet-in"></em></span>
                                     <span class="nk-menu-text">Etats de credits</span>
                                 </a>
-                            </li>
+                            </li>--}}
                         @endif
                         @if(auth()->user()->hasAnyRole(['admin', 'finance','partner']))
-                            <li class="nk-menu-item">
-                                <a href="{{route('purchase_commercial')}}" class="nk-menu-link">
-                                    <span class="nk-menu-icon"><em class="icon ni ni-sign-dollar"></em></span>
-                                    <span class="nk-menu-text">Vente-Commerciale</span>
-                                </a>
-                            </li>
-                            <li class="nk-menu-item">
-                                <a href="{{route('facture')}}" class="nk-menu-link">
-                                    <span class="nk-menu-icon"><em class="icon ni ni-wallet-in"></em></span>
-                                    <span class="nk-menu-text">Etats de credits</span>
-                                </a>
-                            </li>
+                              <li class="nk-menu-item">
+                                    <a href="{{route('pme.index')}}" class="nk-menu-link">
+                                        <span class="nk-menu-icon"><em class="icon ni ni-sign-dollar"></em></span>
+                                        <span class="nk-menu-text">PMEs</span>
+                                    </a>
+                                </li>
+                   {{--        <li class="nk-menu-item">
+                                    <a href="{{route('facture')}}" class="nk-menu-link">
+                                        <span class="nk-menu-icon"><em class="icon ni ni-wallet-in"></em></span>
+                                        <span class="nk-menu-text">Etats de credits</span>
+                                    </a>
+                                </li>--}}
                         @endif
                         @if(auth()->user()->hasAnyRole(['admin']))
                         <li class="nk-menu-item">
                             <a href="{{route('partners')}}" class="nk-menu-link">
                                 <span class="nk-menu-icon"><em class="icon ni ni-user-cross-fill"></em></span>
-                                <span class="nk-menu-text">Partenaires</span>
+                                <span class="nk-menu-text">Users</span>
                             </a>
                         </li>
 

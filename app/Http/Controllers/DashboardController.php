@@ -187,12 +187,12 @@ class DashboardController extends Controller
     {
 
         //$purchase=Purchase::query()->paginate(20);
-        $purchase=Paiement::query()
+/*        $purchase=Paiement::query()
             ->join('purchases', 'purchases.id', '=', 'paiements.purchase_id')
             ->join('customers', 'customers.id', '=', 'purchases.customer_id')
-            ->where('customers.point_sale_id','!=',null)->paginate(20);
+            ->where('customers.point_sale_id','!=',null)->paginate(20);*/
         return view('admin.purchase-commercial',[
-            'items'=>$purchase
+            'items'=>[]
         ]);
     }
     public function paiements(Request $request,$id)

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MomoCallbackController;
+use App\Http\Controllers\PmeController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SecurityController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,12 +40,29 @@ Route::group(['middleware' => ['web', 'auth']], function () {
         ->name('partners');
     Route::match(["POST", "GET"], '/categories', [DashboardController::class, 'categories'])
         ->name('categories');
-    Route::match(["POST", "GET"], '/products', [DashboardController::class, 'products'])
+    Route::match(["POST", "GET"], '/admin/products', [ProductController::class, 'products'])
         ->name('products');
     Route::get('/momo-callbacks', function () {
         return view('admin.momo_callbacks', [
             'callbacks' => \App\Models\MomoCallback::latest()->paginate(50),
         ]);
     });
+    Route::get('/admin/products/{product}/edit', [ProductController::class, 'edit'])
+        ->name('admin.products.edit');
+
+    Route::post('/admin/products/{product}/update', [ProductController::class, 'update'])
+        ->name('admin.products.update');
+
+
+});
+Route::prefix('admin/pmes')->middleware(['auth'])->group(function () {
+
+    Route::get('/', [PmeController::class, 'index'])->name('pme.index');
+    Route::get('/create', [PmeController::class, 'create'])->name('pme.create');
+    Route::post('/', [PmeController::class, 'store'])->name('pme.store');
+    Route::get('/{pme}', [PmeController::class, 'show'])->name('pme.show');
+    Route::get('/{pme}/edit', [PmeController::class, 'edit'])->name('pme.edit');
+    Route::put('/{pme}', [PmeController::class, 'update'])->name('pme.update');
+    Route::delete('/{pme}', [PmeController::class, 'destroy'])->name('pme.destroy');
 
 });

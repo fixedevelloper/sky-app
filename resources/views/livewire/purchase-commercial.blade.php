@@ -19,78 +19,114 @@
         <div class="card-inner-group">
             <div class="card-inner p-0">
                 <div class="card-body">
-                    <table class="table nk-tb-list nk-tb-ulist">
+
+                    <table class="nk-tb-list nk-tb-ulist">
                         <thead>
                         <tr class="nk-tb-item nk-tb-head">
-                            <th></th>
+                            <th class="nk-tb-col nk-tb-col-check"></th>
 
-                            {{-- 🧭 Tri par nom client --}}
-                            <th wire:click="sortBy('customers.name')" class="cursor-pointer">
-                                Nom du client
-                                @include('components.sort-icon', ['field' => 'customers.name'])
+                            <th wire:click="sortBy('customer_name')" class="nk-tb-col cursor-pointer">
+                                Client
+                                @if($sortField === 'customer_name')
+                                    <x-sort-icon :direction="$sortDirection"/>
+                                @endif
                             </th>
 
-                            <th>Téléphone</th>
-                            <th>Localisation</th>
+                            <th class="nk-tb-col">Téléphone</th>
 
-                            {{-- 🧭 Tri par nom point de vente --}}
-                            <th >
-                                Point de vente
+                            <th wire:click="sortBy('product_name')" class="nk-tb-col cursor-pointer">
+                                Produit
+                                @if($sortField === 'product_name')
+                                    <x-sort-icon :direction="$sortDirection"/>
+                                @endif
                             </th>
 
-                            <th>Code commercial</th>
-
-                            {{-- 🧭 Tri par manager --}}
-                            <th>
-                                Manager
-                            </th>
-
-                            {{-- 🧭 Tri par produit --}}
-                            <th wire:click="sortBy('products.name')" class="cursor-pointer">
-                                Article
-                                @include('components.sort-icon', ['field' => 'products.name'])
-                            </th>
-
-                            {{-- 🧭 Tri par montant --}}
-                            <th wire:click="sortBy('paiements.amount')" class="cursor-pointer">
+                            <th wire:click="sortBy('amount')" class="nk-tb-col cursor-pointer">
                                 Montant
-                                @include('components.sort-icon', ['field' => 'paiements.amount'])
+                                @if($sortField === 'amount')
+                                    <x-sort-icon :direction="$sortDirection"/>
+                                @endif
                             </th>
 
-                            <th>Style d'achat</th>
+                            <th wire:click="sortBy('status')" class="nk-tb-col cursor-pointer">
+                                Statut
+                                @if($sortField === 'status')
+                                    <x-sort-icon :direction="$sortDirection"/>
+                                @endif
+                            </th>
+
+                            <th class="nk-tb-col">Date</th>
                         </tr>
                         </thead>
 
                         <tbody>
                         @forelse($items as $item)
                             <tr class="nk-tb-item">
-                                <td>
-                                    <input type="checkbox" class="form-check-input">
+
+                                <td class="nk-tb-col nk-tb-col-check">
+                                    <input type="checkbox">
                                 </td>
 
-                                <td>{{ optional($item->purchase->customer)->name ?? '-' }}</td>
-                                <td>{{ optional($item->purchase->customer)->phone ?? '-' }}</td>
-                                <td>{{ optional($item->purchase->customer)->localisation ?? '-' }}</td>
-                                <td>{{ optional($item->purchase->customer->pointSale)->name ?? '-' }}</td>
-                                <td>{{ optional($item->purchase->customer)->commercial_code ?? '-' }}</td>
-                                <td>{{ optional($item->purchase->customer->pointSale->vendor)->name ?? '-' }}</td>
-                                <td>{{ optional($item->purchase->product)->name ?? optional($item->customProduct)->name ?? '-' }}</td>
-                                <td>{{ number_format(optional($item->purchase->product)->price ?? optional($item->customProduct)->amount ?? 0, 0, ',', ' ') }} F</td>
-                                <td>{{ ucfirst($item->purchase->type ?? 'standard') }}</td>
+                                {{-- CLIENT --}}
+                                <td class="nk-tb-col">
+                                    <strong>{{ optional($item->user)->name ?? '-' }}</strong>
+                                </td>
+
+                                {{-- TELEPHONE --}}
+                                <td class="nk-tb-col">
+                                    {{ optional($item->user)->phone ?? '-' }}
+                                </td>
+
+                                {{-- PRODUITS --}}
+                                <td class="nk-tb-col">
+                                    @foreach($item->items as $orderItem)
+                                        <div class="text-sm">
+                                            {{ $orderItem->product->name ?? '-' }}
+                                            <span class="text-muted">
+                                                (x{{ $orderItem->quantity }})
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </td>
+
+                                {{-- MONTANT --}}
+                                <td class="nk-tb-col">
+                                    <strong>
+                                        {{ number_format($item->amount, 0, ',', ' ') }} F
+                                    </strong>
+                                </td>
+
+                                {{-- STATUT --}}
+                                <td class="nk-tb-col">
+                                    <span class="badge
+                                        @if($item->status === 'confirmed') bg-success
+                                        @elseif($item->status === 'pending') bg-warning
+                                        @elseif($item->status === 'failed') bg-danger
+                                        @else bg-secondary @endif">
+                                        {{ ucfirst($item->status) }}
+                                    </span>
+                                </td>
+
+                                {{-- DATE --}}
+                                <td class="nk-tb-col">
+                                    {{ $item->created_at->format('d/m/Y H:i') }}
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted py-3">
-                                    Aucune vente trouvée
+                                <td colspan="7" class="text-center text-muted py-3">
+                                    Aucun achat trouvé
                                 </td>
                             </tr>
                         @endforelse
                         </tbody>
                     </table>
 
+                    {{-- Pagination --}}
                     <div class="mt-3">
                         {{ $items->links() }}
                     </div>
+
                 </div>
             </div>
         </div>

@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Purchase;
+use Illuminate\Pagination\Paginator;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -23,7 +24,7 @@ class Facture extends Component
     public function render()
     {
         // 🔹 Base query
-        $purchases = Purchase::with(['customer', 'product', 'paiements'])
+       /* $purchases = Purchase::with(['customer', 'product', 'paiements'])
             ->whereNotNull('product_id')
             ->get();
 
@@ -63,9 +64,9 @@ class Facture extends Component
             $this->perPage,
             $page,
             ['path' => request()->url(), 'query' => request()->query()]
-        );
+        );*/
 
-        return view('livewire.facture', ['items' => $paginator]);
+        return view('livewire.facture', ['items' => new Paginator()]);
     }
 }
 

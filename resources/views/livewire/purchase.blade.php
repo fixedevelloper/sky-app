@@ -6,10 +6,12 @@
                 <p class="text-soft">Nombre total : {{ $items->total() }}</p>
             </div>
 
-            {{-- 🔍 Barre de recherche --}}
+            {{-- 🔍 Recherche --}}
             <div class="nk-block-head-content">
-                <input type="text" wire:model.live.debounce.200ms="search" class="form-control"
-                       placeholder="Rechercher par nom, téléphone, code promo ou produit...">
+                <input type="text"
+                       wire:model.live.debounce.300ms="search"
+                       class="form-control"
+                       placeholder="Rechercher par client, téléphone, produit ou référence">
             </div>
         </div>
     </div>
@@ -18,70 +20,104 @@
         <div class="card-inner-group">
             <div class="card-inner p-0">
                 <div class="card-body">
+
                     <table class="nk-tb-list nk-tb-ulist">
                         <thead>
                         <tr class="nk-tb-item nk-tb-head">
-                            <th class="nk-tb-col nk-tb-col-check">
-                                <div class="custom-control custom-control-sm custom-checkbox notext">
-                                    <input type="checkbox" class="custom-control-input" id="pid-all">
-                                    <label class="custom-control-label" for="pid-all"></label>
-                                </div>
-                            </th>
+                            <th class="nk-tb-col nk-tb-col-check"></th>
+
                             <th wire:click="sortBy('customer_name')" class="nk-tb-col cursor-pointer">
-                                <span class="sub-text">Nom du client</span>
-                                @if($sortField === 'customer_name') <x-sort-icon :direction="$sortDirection" /> @endif
+                                Client
+                                @if($sortField === 'customer_name')
+                                    <x-sort-icon :direction="$sortDirection"/>
+                                @endif
                             </th>
+
                             <th class="nk-tb-col">Téléphone</th>
-                            <th class="nk-tb-col">Localisation</th>
-                            <th class="nk-tb-col">Code promo</th>
+
                             <th wire:click="sortBy('product_name')" class="nk-tb-col cursor-pointer">
-                                <span class="sub-text">Article</span>
-                                @if($sortField === 'product_name') <x-sort-icon :direction="$sortDirection" /> @endif
+                                Produit
+                                @if($sortField === 'product_name')
+                                    <x-sort-icon :direction="$sortDirection"/>
+                                @endif
                             </th>
+
                             <th wire:click="sortBy('amount')" class="nk-tb-col cursor-pointer">
-                                <span class="sub-text">Montant</span>
-                                @if($sortField === 'amount') <x-sort-icon :direction="$sortDirection" /> @endif
+                                Montant
+                                @if($sortField === 'amount')
+                                    <x-sort-icon :direction="$sortDirection"/>
+                                @endif
                             </th>
-                            <th class="nk-tb-col">Style d'achat</th>
+
+                            <th wire:click="sortBy('status')" class="nk-tb-col cursor-pointer">
+                                Statut
+                                @if($sortField === 'status')
+                                    <x-sort-icon :direction="$sortDirection"/>
+                                @endif
+                            </th>
+
+                            <th class="nk-tb-col">Date</th>
                         </tr>
                         </thead>
+
                         <tbody>
                         @forelse($items as $item)
                             <tr class="nk-tb-item">
+
                                 <td class="nk-tb-col nk-tb-col-check">
-                                    <div class="custom-control custom-control-sm custom-checkbox notext">
-                                        <input type="checkbox" class="custom-control-input" id="pid-{{ $item->id }}">
-                                        <label class="custom-control-label" for="pid-{{ $item->id }}"></label>
-                                    </div>
+                                    <input type="checkbox">
                                 </td>
+
+                                {{-- CLIENT --}}
                                 <td class="nk-tb-col">
-                                    <a href="#" class="project-title">
-                                        <div class="user-avatar sm bg-blue">
-                                            <img src="{{ asset($item->image_url ?? 'assets/images/nophone.jpg') }}" alt="">
+                                    <strong>{{ optional($item->user)->name ?? '-' }}</strong>
+                                </td>
+
+                                {{-- TELEPHONE --}}
+                                <td class="nk-tb-col">
+                                    {{ optional($item->user)->phone ?? '-' }}
+                                </td>
+
+                                {{-- PRODUITS --}}
+                                <td class="nk-tb-col">
+                                    @foreach($item->items as $orderItem)
+                                        <div class="text-sm">
+                                            {{ $orderItem->product->name ?? '-' }}
+                                            <span class="text-muted">
+                                                (x{{ $orderItem->quantity }})
+                                            </span>
                                         </div>
-                                        <div class="project-info">
-                                            <h6 class="title">{{ optional($item->purchase->customer->user)->name ?? '-' }}</h6>
-                                        </div>
-                                    </a>
+                                    @endforeach
                                 </td>
-                                <td class="nk-tb-col">{{ optional($item->purchase->customer->user)->phone ?? '-' }}</td>
-                                <td class="nk-tb-col">{{ optional($item->purchase->customer)->localisation ?? '-' }}</td>
-                                <td class="nk-tb-col">{{ optional($item->purchase->customer)->code_commercial ?? '-' }}</td>
+
+                                {{-- MONTANT --}}
                                 <td class="nk-tb-col">
-                                    {{ optional($item->purchase->product)->name ?? optional($item->purchase->customProduct)->name ?? '-' }}
+                                    <strong>
+                                        {{ number_format($item->amount, 0, ',', ' ') }} F
+                                    </strong>
                                 </td>
+
+                                {{-- STATUT --}}
                                 <td class="nk-tb-col">
-                                    {{ number_format(optional($item->purchase->product)->price ?? optional($item->purchase->customProduct)->amount ?? 0, 0, ',', ' ') }} F
+                                    <span class="badge
+                                        @if($item->status === 'confirmed') bg-success
+                                        @elseif($item->status === 'pending') bg-warning
+                                        @elseif($item->status === 'failed') bg-danger
+                                        @else bg-secondary @endif">
+                                        {{ ucfirst($item->status) }}
+                                    </span>
                                 </td>
+
+                                {{-- DATE --}}
                                 <td class="nk-tb-col">
-                                        <span class="badge bg-outline-primary">
-                                            {{ ucfirst($item->purchase->pay_type ?? 'standard') }}
-                                        </span>
+                                    {{ $item->created_at->format('d/m/Y H:i') }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-3">Aucun achat trouvé</td>
+                                <td colspan="7" class="text-center text-muted py-3">
+                                    Aucun achat trouvé
+                                </td>
                             </tr>
                         @endforelse
                         </tbody>
@@ -91,13 +127,14 @@
                     <div class="mt-3">
                         {{ $items->links() }}
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
-
 </div>
-    @once
+
+@once
     @push('components')
         @if (!class_exists('App\View\Components\SortIcon'))
             @php
