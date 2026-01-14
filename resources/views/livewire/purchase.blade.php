@@ -92,10 +92,15 @@
 
                                 {{-- MONTANT --}}
                                 <td class="nk-tb-col">
-                                    <strong>
-                                        {{ number_format($item->amount, 0, ',', ' ') }} F
-                                    </strong>
+                                    @if(data_get($item->meta, 'mode') !== 'distribute')
+                                        <strong>
+                                            {{ number_format($item->amount, 0, ',', ' ') }} F
+                                        </strong>
+                                    @else
+                                        <button class="btn btn-outline-dark">Modifier le prix</button>
+                                    @endif
                                 </td>
+
 
                                 {{-- STATUT --}}
                                 <td class="nk-tb-col">

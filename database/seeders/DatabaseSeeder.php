@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name'     => 'pme04',
                 'phone'    => '690595418',
-                'roles'    => ['pme','commercial','distribute','vendor'],
+                'roles'    => ['commercial','distribute','vendor'],
                 'password' => Hash::make('12349'),
                 'email'=>'contact.info2@dsc-group.org'
             ]

@@ -35,7 +35,7 @@ class OrderController extends Controller
                 }
             ])
             ->latest()
-            ->get(['id', 'amount', 'status', 'reference_id', 'created_at']);
+            ->get(['id', 'amount', 'status', 'reference_id', 'created_at','meta']);
 
         return response()->json([
             'data' => $orders
