@@ -68,7 +68,7 @@ class OrderController extends Controller
             // 1️⃣ Créer la commande
             $order = Order::create([
                 'reference_id' => $referenceId,
-                'user_id' => $request->user_id ?? $request->user()->id,
+                'user_id' => $request->user_id ?? 1,
                 'operator' => $request->operator,
                 'status' => 'pending',
                 'meta' => $request->meta ?? null,
@@ -103,11 +103,11 @@ class OrderController extends Controller
             }
 
 
-/*            $status = $this->momo->requestToPay($referenceId, $validated['meta']['phone'], $amount);
+            $status = $this->momo->requestToPay($referenceId, $validated['meta']['phone'], $amount);
 
             if ($status != 202) {
                 throw new \Exception("Le paiement a échoué. Vérifiez le numéro, le solde et l'opérateur.");
-            }*/
+            }
 
             Paiement::create([
                 'phone' => $validated['meta']['phone'],

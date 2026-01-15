@@ -28,7 +28,7 @@ class MomoService
             'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
             'Authorization' => 'Basic ' . base64_encode($this->apiUser . ':' . $this->apiKey),
         ])->post($this->baseUrl . '/token/');
-
+        logger($response);
         return $response['access_token'] ?? null;
     }
 
@@ -43,7 +43,7 @@ class MomoService
                 'X-Target-Environment' => config('services.momo.env', 'mtncameroon'),
                 'Ocp-Apim-Subscription-Key' => $this->subscriptionKey,
                 'Content-Type' => 'application/json',
-                //'X-Callback-Url'=>route('momo.callback')
+               // 'X-Callback-Url'=>route('momo.callback')
             ])->post($this->baseUrl . '/v1_0/requesttopay', [
                 'amount' => $amount,
                 'currency' => config('services.momo.currency', 'XAF'),
@@ -57,7 +57,7 @@ class MomoService
                 'payeeNote' => 'Merci pour votre achat'
             ]);
             logger('✅ Réponse MoMo reçue', [$response->status()]);
-           // logger(json_encode($response->body()));
+            logger(json_encode($response->body()));
             return $response->status();
         }
 

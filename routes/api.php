@@ -35,11 +35,11 @@ Route::post('/momo/pay', [MomoController::class, 'pay']);
 Route::get('/momo/status/{referenceId}', [MomoController::class, 'checkStatus']);
 Route::get('/momo/status-sale-point/{referenceId}', [MomoController::class, 'checkStatusSalePoint']);
 Route::post('/momo/token', [MomoController::class, 'getToken']);
-
+Route::post('/orders', [OrderController::class, 'store']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);           // Liste toutes les commandes
     Route::get('/orders/{id}', [OrderController::class, 'show']);       // Détail d'une commande
-    Route::post('/orders', [OrderController::class, 'store']);          // Créer une commande avec items
+          // Créer une commande avec items
     Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']); // Mettre à jour le statut
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']); // Supprimer une commande
 
